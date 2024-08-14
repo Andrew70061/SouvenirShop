@@ -132,6 +132,15 @@ def view_cart(request):
     return render(request, 'cart.html', {'cart_items': cart_items, 'products': products, 'total_price': total_price})
 
 
+#Удаление товара из корзины
+def remove_from_cart(request, product_id):
+    if 'cart' in request.session:
+        if str(product_id) in request.session['cart']:
+            del request.session['cart'][str(product_id)]
+            request.session.modified = True
+    return redirect('shop:view_cart')
+
+
 #Оформление заказа
 @login_required
 def checkout(request):
