@@ -8,28 +8,40 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Номер</th>
-                        <th>Фото товара</th>
-                        <th>Товар</th>
-                        <th>Цена</th>
-                        <th>Итого</th>
+                        <th style="text-align: center;">Номер</th>
+                        <th style="text-align: center;">Фото товара</th>
+                        <th style="text-align: center;">Наименование</th>
+                        <th style="text-align: center;">Количество</th>
+                        <th style="text-align: center;">Цена</th>
+                        <th style="text-align: center;">Итого</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for product in products %}
                         <tr data-product-id="{{ product.id }}">
-                            <td>{{ forloop.counter }}</td>
-                            <td>
+                            <td style="text-align: center;">{{ forloop.counter }}</td>
+                            <td style="text-align: center;">
                                 {% if product.image %}
                                     <img src="{{ product.image.url }}" alt="{{ product.title }}" class="img-thumbnail" style="max-width: 100px;">
                                 {% else %}
                                     <span>Нет изображения</span>
                                 {% endif %}
                             </td>
-                            <td>{{ product.title }}</td>
-                            <td>{{ product.price }}</td>
-                            <td class="total-price-cell">{{ product.total_price|floatformat:2 }}</td>
-                            <td>
+                            <td style="text-align: center;">{{ product.title }}</td>
+                            <td style="text-align: center;">
+                                <form action="{% url 'shop:update_quantity' product.id %}" method="post" class="quantity-form">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="decrease" class="btn btn-sm btn-outline-secondary quantity-button">-</button>
+                                    <input type="number" name="quantity" value="{{ product.quantity_in_cart }}" min="1" max="{{ product.quantity }}" class="quantity-input" onchange="this.form.submit()">
+                                    <button type="submit" name="action" value="increase" class="btn btn-sm btn-outline-secondary quantity-button" {% if product.quantity_in_cart >= product.quantity %}disabled{% endif %}>+</button>
+                                </form>
+                                {% if product.quantity_in_cart >= product.quantity %}
+                                    <p class="text-danger">Для заказа доступно шт: {{ product.quantity }}</p>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;" class="price">{{ product.price }}</td>
+                            <td style="text-align: center;" class="total-price-cell">{{ product.total_price|floatformat:2 }}</td>
+                            <td style="text-align: center;">
                                 <a href="{% url 'shop:remove_from_cart' product.id %}" class="btn btn-danger">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -42,7 +54,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4" class="text-right"><strong>Итого:</strong></td>
+                        <td colspan="5" class="text-right"><strong>Итог:</strong></td>
                         <td id="total-price">{{ total_price }}</td>
                     </tr>
                 </tfoot>
@@ -54,31 +66,34 @@
     {% else %}
         <p>Ваша корзина пуста.</p>
     {% endif %}
-{% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.btn-danger').forEach(function(button) {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            var productId = this.closest('tr').getAttribute('data-product-id');
-            var totalPriceCell = document.getElementById('total-price');
-            var currentTotal = parseFloat(totalPriceCell.innerText);
-            var productTotal = parseFloat(this.closest('tr').querySelector('.total-price-cell').innerText);
+    <style>
+        .quantity-button, .quantity-input {
+            width: 40px;
+            height: 30px;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0;
+            margin: 0;
+        }
+        .quantity-input::-webkit-inner-spin-button,
+        .quantity-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .quantity-input {
+            -moz-appearance: textfield;
+        }
+    </style>
 
-            fetch('/shop/cart/remove/' + productId + '/', {
-                method: 'GET'
-            }).then(function(response) {
-                return response.json();
-            }).then(function(data) {
-                if (data.status === 'success') {
-                    this.closest('tr').remove();
-                    totalPriceCell.innerText = (currentTotal - productTotal).toFixed(2);
-                }
-            }.bind(this));
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    this.form.submit();
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 {% endblock %}

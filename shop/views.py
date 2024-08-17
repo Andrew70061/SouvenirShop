@@ -125,7 +125,8 @@ def view_cart(request):
     products = Product.objects.filter(id__in=cart_items.keys())
 
     for product in products:
-        product.total_price = product.price * cart_items.get(str(product.id), 0)
+        product.quantity_in_cart = cart_items.get(str(product.id), 0)
+        product.total_price = product.price * product.quantity_in_cart
 
     total_price = sum(product.total_price for product in products)
 
@@ -138,6 +139,33 @@ def remove_from_cart(request, product_id):
         if str(product_id) in request.session['cart']:
             del request.session['cart'][str(product_id)]
             request.session.modified = True
+    return redirect('shop:view_cart')
+
+
+#Изменение количества товара в корзине
+def update_quantity(request, product_id):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        quantity = request.POST.get('quantity')
+        if 'cart' in request.session:
+            cart = request.session['cart']
+            if str(product_id) in cart:
+                product = Product.objects.get(id=product_id)
+                if action == 'increase':
+                    if cart[str(product_id)] < product.quantity:
+                        cart[str(product_id)] += 1
+                elif action == 'decrease' and cart[str(product_id)] > 1:
+                    cart[str(product_id)] -= 1
+                elif quantity:
+                    try:
+                        quantity = int(quantity)
+                        if quantity > 0 and quantity <= product.quantity:
+                            cart[str(product_id)] = quantity
+                        else:
+                            cart[str(product_id)] = product.quantity
+                    except ValueError:
+                        pass
+                request.session.modified = True
     return redirect('shop:view_cart')
 
 
