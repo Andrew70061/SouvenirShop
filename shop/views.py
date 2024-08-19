@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.urls import reverse
+from django.db.models import Q
 
 
 #Основная страница
@@ -35,6 +36,40 @@ def category_detail(request, slug):
     products = Product.objects.filter(category=category, publish=True)
     categories = ProductCategory.objects.all()
     return render(request, 'category_detail.html', {'category': category, 'products': products, 'categories': categories})
+
+#Фильтры товаров
+def index(request):
+    products = Product.objects.filter(publish=True)
+    categories = ProductCategory.objects.all()
+
+    # Получение списка брендов из модели
+    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+
+    # Фильтрация по цене
+    price_min = request.GET.get('price_min')
+    price_max = request.GET.get('price_max')
+    if price_min:
+        products = products.filter(price__gte=price_min)
+    if price_max:
+        products = products.filter(price__lte=price_max)
+
+    # Фильтрация по категориям
+    category_ids = request.GET.getlist('category')
+    if category_ids:
+        products = products.filter(category__id__in=category_ids)
+
+    # Фильтрация по брендам
+    brand_names = request.GET.getlist('brand')
+    if brand_names:
+        products = products.filter(vendor__in=brand_names)
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'brands': brands,
+    }
+
+    return render(request, 'index.html', context)
 
 
 #Страница о нас

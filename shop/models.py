@@ -17,10 +17,9 @@ class Product(models.Model):
     #Мета
     sku = models.CharField(max_length=255, verbose_name='Артикул')
     barcode = models.CharField(verbose_name='Штрихкод', max_length=255, blank=True)
-    manufacturer = models.CharField(verbose_name='Компания-производитель', max_length=255, blank=True)
     manufacturer_countries = models.CharField(max_length=255, verbose_name='Страна-производитель', blank=True)
-    vendor = models.CharField(max_length=255, verbose_name='Производитель', blank=True)
-    vendor_code = models.CharField(max_length=255, verbose_name='Артикул производителя', blank=True)
+    vendor = models.CharField(max_length=255, verbose_name='Бренд', blank=True)
+    vendor_code = models.CharField(max_length=255, verbose_name='Партномер', blank=True)
 
 
     #Габариты
@@ -44,7 +43,6 @@ class Product(models.Model):
     supplier_url = models.URLField(verbose_name='URL', blank=True)
     supplier_price = models.IntegerField(verbose_name='Цена у поставщика', default=0, null=True,
                                          validators=[MinValueValidator(0)])
-    supplier_quantity = models.IntegerField(verbose_name='Количество товара у поставщика', default=0, null=True)
 
 
     #Метка публикации
