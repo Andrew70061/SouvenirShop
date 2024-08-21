@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Min, Max
 
 
 #Основная страница
@@ -23,19 +23,76 @@ def index(request):
 def search(request):
     query = request.GET.get('q')
     if query:
-        search_results = Product.objects.filter(title__icontains=query) | Product.objects.filter(description__icontains=query)
+        search_results = Product.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     else:
         search_results = Product.objects.none()
+
     categories = ProductCategory.objects.all()
-    return render(request, 'search_results.html', {'search_results': search_results, 'categories': categories})
+
+    # Получите минимальную и максимальную цены
+    min_price = Product.objects.aggregate(Min('price'))['price__min']
+    max_price = Product.objects.aggregate(Max('price'))['price__max']
+
+    # Получите список брендов
+    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+
+    context = {
+        'search_results': search_results,
+        'categories': categories,
+        'min_price': min_price,
+        'max_price': max_price,
+        'brands': brands,
+    }
+
+    return render(request, 'search_results.html', context)
 
 
 #Категории товаров
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Q, Min, Max
+from .models import Product, ProductCategory
+
 def category_detail(request, slug):
     category = get_object_or_404(ProductCategory, slug=slug)
     products = Product.objects.filter(category=category, publish=True)
     categories = ProductCategory.objects.all()
-    return render(request, 'category_detail.html', {'category': category, 'products': products, 'categories': categories})
+
+    # Фильтрация по цене
+    price_min = request.GET.get('price_min')
+    price_max = request.GET.get('price_max')
+    if price_min:
+        products = products.filter(price__gte=price_min)
+    if price_max:
+        products = products.filter(price__lte=price_max)
+
+    # Фильтрация по категориям
+    selected_categories = request.GET.getlist('category')
+    if selected_categories:
+        products = products.filter(category__id__in=selected_categories)
+
+    # Фильтрация по брендам
+    selected_brands = request.GET.getlist('brand')
+    if selected_brands:
+        products = products.filter(vendor__in=selected_brands)
+
+    # Получите минимальную и максимальную цены
+    min_price = Product.objects.aggregate(Min('price'))['price__min']
+    max_price = Product.objects.aggregate(Max('price'))['price__max']
+
+    # Получите список брендов
+    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+
+    context = {
+        'category': category,
+        'products': products,
+        'categories': categories,
+        'min_price': min_price,
+        'max_price': max_price,
+        'brands': brands,
+    }
+
+    return render(request, 'category_detail.html', context)
+
 
 #Фильтры товаров
 def index(request):
@@ -63,10 +120,17 @@ def index(request):
     if brand_names:
         products = products.filter(vendor__in=brand_names)
 
+    # Получаем минимальную и максимальную цены из базы данных
+    price_range = Product.objects.aggregate(min_price=Min('price'), max_price=Max('price'))
+    min_price = price_range['min_price'] or 0
+    max_price = price_range['max_price'] or 1000
+
     context = {
         'products': products,
         'categories': categories,
         'brands': brands,
+        'min_price': min_price,
+        'max_price': max_price,
     }
 
     return render(request, 'index.html', context)
