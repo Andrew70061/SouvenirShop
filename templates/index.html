@@ -87,6 +87,26 @@
             font-size: 1.2em;
             color: #6c757d;
         }
+        .sorting-bar {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            margin-bottom: 20px;
+            background-color: transparent;
+        }
+        .sorting-bar button {
+            padding: 5px 10px;
+            background-color: transparent;
+            color: black;
+            border: none;
+            cursor: pointer;
+            margin-right: 0;
+            border-radius: 0;
+            outline: none; /* Убираем окантовку при фокусе */
+        }
+        .sorting-bar button.active {
+            color: green;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css">
     <div class="row">
@@ -136,7 +156,7 @@
                     <label>Категории:</label>
                     {% for category in categories %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="category" id="category_{{ category.id }}" value="{{ category.id }}" {% if category.id in request.GET.category %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" name="category" id="category_{{ category.id }}" value="{{ category.id }}" {% if category.id in request.GET.category %} checked{% endif %}>
                             <label class="form-check-label" for="category_{{ category.id }}">
                                 {{ category.title }}
                             </label>
@@ -147,7 +167,7 @@
                     <label>Бренды:</label>
                     {% for brand in brands %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="brand" id="brand_{{ brand }}" value="{{ brand }}" {% if brand in request.GET.brand %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" name="brand" id="brand_{{ brand }}" value="{{ brand }}" {% if brand in request.GET.brand %} checked{% endif %}>
                             <label class="form-check-label" for="brand_{{ brand }}">
                                 {{ brand }}
                             </label>
