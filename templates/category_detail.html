@@ -7,7 +7,7 @@
         .filter-container {
             position: absolute;
             right: 0;
-            top: 168px; /* Смещение вниз */
+            top: 168px;
             width: 25%;
             background-color: #fff;
             padding: 20px;
@@ -15,26 +15,29 @@
         .content-container {
             margin-right: 8%;
             padding: 20px;
-            width: 100%; /* Ширина контейнера с товарами */
+            width: 100%;
         }
         .card-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px; /* Промежуток между карточками */
+            gap: 20px;
         }
         .card {
-            flex: 1 1 calc(33.33% - 20px); /* Распределение ширины карточек */
-            max-width: calc(33.33% - 20px); /* Максимальная ширина карточек */
-            height: 100%; /* Одинаковая высота карточек */
+            flex: 1 1 calc(33.33% - 20px);
+            max-width: calc(33.33% - 20px);
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
         }
         .card-title {
-            font-size: 1.2em; /* Размер шрифта как у слова "Фильтры" */
+            font-size: 1.2em;
         }
         .card-price {
-            margin-bottom: 15px; /* Добавляем отступ между ценой и кнопкой */
+            margin-bottom: 15px;
         }
         .price-filter {
             display: flex;
@@ -45,7 +48,7 @@
             margin-right: 5px;
         }
         .price-filter input[type="number"] {
-            width: 85px; /* Увеличьте ширину полей ввода */
+            width: 85px;
             margin-right: 10px;
         }
         .price-filter input[type="range"] {
@@ -53,15 +56,15 @@
         }
         .noUi-target {
             margin-top: 5px;
-            height: 15px; /* Уменьшаем высоту ползунка */
+            height: 15px;
         }
         .noUi-handle {
-            height: 20px !important; /* Уменьшаем высоту ручки ползунка */
-            width: 20px !important; /* Уменьшаем ширину ручки ползунка */
-            top: -2px !important; /* Смещаем ручку ползунка вверх */
+            height: 20px !important;
+            width: 20px !important;
+            top: -2px !important;
         }
         .noUi-connect {
-            background: #28a745 !important; /* Цвет линии ползунка */
+            background: #28a745 !important;
         }
         .filter-title {
             font-weight: bold;
@@ -89,10 +92,38 @@
             font-size: 1.2em;
             color: #6c757d;
         }
+        .sorting-bar {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            margin-bottom: 20px;
+            background-color: transparent;
+        }
+        .sorting-bar button {
+            padding: 5px 10px;
+            background-color: transparent;
+            color: black;
+            border: none;
+            cursor: pointer;
+            margin-right: 0;
+            border-radius: 0;
+            outline: none;
+        }
+        .sorting-bar button.active {
+            color: green;
+        }
+        .sorting-bar button:focus {
+            outline: none;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css">
     <div class="row">
         <div class="content-container">
+            <div class="sorting-bar">
+                <button type="button" class="btn btn-sort" data-sort="price">По цене</button>
+                <button type="button" class="btn btn-sort" data-sort="name">По названию</button>
+                <button type="button" class="btn btn-sort" data-sort="quantity">По количеству</button>
+            </div>
             <div class="card-container">
                 {% if products %}
                     {% for product in products %}
@@ -175,7 +206,7 @@
             },
             format: {
                 to: function (value) {
-                    return value.toFixed(0); // Убираем нули после запятой
+                    return value.toFixed(0);
                 },
                 from: function (value) {
                     return parseFloat(value);
@@ -185,6 +216,31 @@
         priceSlider.noUiSlider.on('update', function (values, handle) {
             document.getElementById('price_min').value = values[0];
             document.getElementById('price_max').value = values[1];
+        });
+
+        document.querySelectorAll('.btn-sort').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var sortField = this.getAttribute('data-sort');
+                var currentUrl = new URL(window.location.href);
+                var sortOrder = currentUrl.searchParams.get('sort_order') || 'asc';
+                var sortBy = currentUrl.searchParams.get('sort_by');
+
+                if (sortBy === sortField) {
+                    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortOrder = 'asc';
+                }
+
+                currentUrl.searchParams.set('sort_by', sortField);
+                currentUrl.searchParams.set('sort_order', sortOrder);
+                window.location.href = currentUrl.toString();
+            });
+
+
+            var sortBy = new URL(window.location.href).searchParams.get('sort_by');
+            if (sortBy && button.getAttribute('data-sort') === sortBy) {
+                button.classList.add('active');
+            }
         });
     </script>
 {% endblock %}
