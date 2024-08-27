@@ -22,6 +22,7 @@ def index(request):
 #Поиск товаров
 def search(request):
     query = request.GET.get('q')
+    per_page = int(request.GET.get('per_page', 10))
     if query:
         search_results = Product.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     else:
@@ -72,6 +73,8 @@ def search(request):
         else:
             search_results = search_results.order_by(f'-{sort_by}')
 
+    search_results = search_results[:per_page]
+
     #Минимальная и максимальная цена при поиске товаров
     min_price = Product.objects.aggregate(Min('price'))['price__min']
     max_price = Product.objects.aggregate(Max('price'))['price__max']
@@ -99,6 +102,7 @@ def search(request):
 #Категории товаров
 def category_detail(request, slug):
     category = get_object_or_404(ProductCategory, slug=slug)
+    per_page = int(request.GET.get('per_page', 10))
     products = Product.objects.filter(category=category, publish=True)
     categories = ProductCategory.objects.all()
 
@@ -145,6 +149,8 @@ def category_detail(request, slug):
         else:
             products = products.order_by(f'-{sort_by}')
 
+    products = products[:per_page]
+
     #Минимальная и максимальная цены на странице с категориями
     min_price = Product.objects.aggregate(Min('price'))['price__min']
     max_price = Product.objects.aggregate(Max('price'))['price__max']
@@ -172,6 +178,7 @@ def category_detail(request, slug):
 
 #Фильтры товаров
 def index(request):
+    per_page = int(request.GET.get('per_page', 10))
     products = Product.objects.filter(publish=True)
     categories = ProductCategory.objects.all()
 
@@ -220,6 +227,8 @@ def index(request):
             products = products.order_by(sort_by)
         else:
             products = products.order_by(f'-{sort_by}')
+
+    products = products[:per_page]
 
     #Минимальная и максимальная цены из базы данных
     price_range = Product.objects.aggregate(min_price=Min('price'), max_price=Max('price'))
