@@ -11,14 +11,15 @@ class Product(models.Model):
     slug = models.SlugField(max_length=150, verbose_name='slug', unique=True)
     description = models.TextField(verbose_name='Описание товара')
     category = TreeForeignKey('ProductCategory', on_delete=models.PROTECT, default=1,
-                              related_name='products', verbose_name='Категория товара')
+                              related_name='products', verbose_name='Категория')
 
 
     #Мета
     sku = models.CharField(max_length=255, verbose_name='Артикул')
     barcode = models.CharField(verbose_name='Штрихкод', max_length=255, blank=True)
     manufacturer_countries = models.CharField(max_length=255, verbose_name='Страна-производитель', blank=True)
-    vendor = models.CharField(max_length=255, verbose_name='Бренд', blank=True)
+    brand = models.ForeignKey('Brand', verbose_name='Бренд', on_delete=models.SET_NULL, null=True, blank=True)
+    vendor = models.CharField(max_length=255, verbose_name='Производитель', blank=True)
     vendor_code = models.CharField(max_length=255, verbose_name='Партномер', blank=True)
 
 
@@ -116,6 +117,19 @@ class Supplier(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
+#Создание брендов
+class Brand(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название бренда')
+    description = models.TextField(verbose_name='Описание бренда', blank=True)
+
+    class Meta:
+        verbose_name = 'Бренд'
+        verbose_name_plural = 'Бренды'
+
+    def __str__(self):
+        return self.name
 
 
 #Заказы

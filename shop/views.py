@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, ProductCategory, Cart, CartItem, Order, OrderItem
+from .models import Product, ProductCategory, Cart, CartItem, Order, OrderItem, Brand
 from .forms import CustomUserCreationForm, ProfileEditForm, RemoveFromCartForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -45,7 +45,7 @@ def search(request):
     #Фильтрация по брендам при поиске товаров
     selected_brands = request.GET.getlist('brand')
     if selected_brands:
-        search_results = search_results.filter(vendor__in=selected_brands)
+        search_results = search_results.filter(brand__id__in=selected_brands)
 
     #Фильтрация по названию при поиске товаров
     name = request.GET.get('name')
@@ -81,7 +81,7 @@ def search(request):
     max_quantity = Product.objects.aggregate(Max('quantity'))['quantity__max']
 
     #Список брендов при поиске товаров
-    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+    brands = Brand.objects.all()
 
     context = {
         'search_results': search_results,
@@ -118,7 +118,7 @@ def category_detail(request, slug):
     #Фильтрация по брендам на странице с категориями
     selected_brands = request.GET.getlist('brand')
     if selected_brands:
-        products = products.filter(vendor__in=selected_brands)
+        products = products.filter(brand__id__in=selected_brands)
 
     #Фильтрация по названию на странице с категориями
     name = request.GET.get('name')
@@ -135,7 +135,7 @@ def category_detail(request, slug):
 
     #Обработка сортировки на странице с категориями
     sort_by = request.GET.get('sort_by')
-    sort_order = request.GET.get('sort_order', 'asc')  # По умолчанию сортировка по возрастанию
+    sort_order = request.GET.get('sort_order', 'asc')
 
     if sort_by:
         if sort_by == 'name':
@@ -154,7 +154,7 @@ def category_detail(request, slug):
     max_quantity = Product.objects.aggregate(Max('quantity'))['quantity__max']
 
     #Список брендов на странице с категориями
-    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+    brands = Brand.objects.all()
 
     context = {
         'category': category,
@@ -176,7 +176,7 @@ def index(request):
     categories = ProductCategory.objects.all()
 
     #Список брендов из бд
-    brands = Product.objects.values_list('vendor', flat=True).distinct().exclude(vendor='')
+    brands = Brand.objects.all()
 
     #Фильтрация по цене
     price_min = request.GET.get('price_min')
@@ -192,9 +192,9 @@ def index(request):
         products = products.filter(category__id__in=category_ids)
 
     #Фильтрация по брендам
-    brand_names = request.GET.getlist('brand')
-    if brand_names:
-        products = products.filter(vendor__in=brand_names)
+    brand_ids = request.GET.getlist('brand')
+    if brand_ids:
+        products = products.filter(brand__id__in=brand_ids)
 
     #Фильтрация по названию
     name = request.GET.get('name')

@@ -1,20 +1,24 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
-from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem
+from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
-
+#Админка
 class SupplierAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(Supplier, SupplierAdmin)
 
+
+#Картинки для товаров
 class ProductImagesAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(ProductImages, ProductImagesAdmin)
 
+
+#Категории и связанные объекты
 class ProductAdminInline(admin.TabularInline):
     model = ProductImages
     extra = 0
@@ -24,6 +28,16 @@ class ProductCategoryAdmin(MPTTModelAdmin):
 
 admin.site.register(ProductCategory, ProductCategoryAdmin)
 
+
+#Бренды
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description']
+    search_fields = ['name']
+
+admin.site.register(Brand, BrandAdmin)
+
+
+#Товары
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'price', 'sale_price', 'quantity', 'publish', 'created', 'updated']
     list_filter = ['publish', 'created']
@@ -33,6 +47,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 admin.site.register(Product, ProductAdmin)
 
+
+#Заказы
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     raw_id_fields = ['product']
@@ -59,6 +75,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 admin.site.register(Order, OrderAdmin)
+
 
 #Добавляем регистрацию модели User
 class CustomUserAdmin(UserAdmin):

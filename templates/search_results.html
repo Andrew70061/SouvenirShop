@@ -180,9 +180,9 @@
                     <label>Бренды:</label>
                     {% for brand in brands %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="brand" id="brand_{{ brand }}" value="{{ brand }}" {% if brand in request.GET.brand %}checked{% endif %}>
-                            <label class="form-check-label" for="brand_{{ brand }}">
-                                {{ brand }}
+                            <input class="form-check-input" type="checkbox" name="brand" id="brand_{{ brand.id }}" value="{{ brand.id }}" {% if brand.id in request.GET.brand %}checked{% endif %}>
+                            <label class="form-check-label" for="brand_{{ brand.id }}">
+                                {{ brand.name }}
                             </label>
                         </div>
                     {% endfor %}
