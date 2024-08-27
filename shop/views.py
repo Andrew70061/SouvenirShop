@@ -12,12 +12,6 @@ from django.urls import reverse
 from django.db.models import Q, Min, Max
 
 
-#Основная страница
-def index(request):
-    products = Product.objects.filter(publish=True)
-    categories = ProductCategory.objects.all()
-    return render(request, 'index.html', {'products': products, 'categories': categories})
-
 
 #Поиск товаров
 def search(request):
@@ -176,7 +170,7 @@ def category_detail(request, slug):
     return render(request, 'category_detail.html', context)
 
 
-#Фильтры товаров
+#index и фильтры
 def index(request):
     per_page = int(request.GET.get('per_page', 10))
     products = Product.objects.filter(publish=True)
@@ -238,7 +232,7 @@ def index(request):
     #Минимальная и максимальная количество из базы данных
     quantity_range = Product.objects.aggregate(min_quantity=Min('quantity'), max_quantity=Max('quantity'))
     min_quantity = quantity_range['min_quantity'] or 0
-    max_quantity = quantity_range['max_quantity'] or 1000
+    max_quantity = quantity_range['max_quantity'] or 10000
 
     context = {
         'products': products,
