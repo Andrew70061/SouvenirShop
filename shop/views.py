@@ -13,11 +13,14 @@ from django.urls import reverse
 from django.db.models import Q, Min, Max
 
 
-
-#Поиск товаров
+#Поиск на сайте
 def search(request):
     query = request.GET.get('q')
-    per_page = int(request.GET.get('per_page', 10))
+    per_page_str = request.GET.get('per_page', '10')
+    if not per_page_str:
+        per_page_str = '10'
+    per_page = int(per_page_str)
+
     if query:
         search_results = Product.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     else:
@@ -25,7 +28,7 @@ def search(request):
 
     categories = ProductCategory.objects.all()
 
-    #Фильтрация по цене при поиске товаров
+    # Фильтрация по цене при поиске товаров
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
     if price_min:
@@ -33,22 +36,22 @@ def search(request):
     if price_max:
         search_results = search_results.filter(price__lte=price_max)
 
-    #Фильтрация по категориям при поиске товаров
+    # Фильтрация по категориям при поиске товаров
     selected_categories = request.GET.getlist('category')
     if selected_categories:
         search_results = search_results.filter(category__id__in=selected_categories)
 
-    #Фильтрация по брендам при поиске товаров
+    # Фильтрация по брендам при поиске товаров
     selected_brands = request.GET.getlist('brand')
     if selected_brands:
         search_results = search_results.filter(brand__id__in=selected_brands)
 
-    #Фильтрация по названию при поиске товаров
+    # Фильтрация по названию при поиске товаров
     name = request.GET.get('name')
     if name:
         search_results = search_results.filter(Q(title__icontains=name) | Q(description__icontains=name))
 
-    #Фильтрация по количеству при поиске товаров
+    # Фильтрация по количеству при поиске товаров
     quantity_min = request.GET.get('quantity_min')
     quantity_max = request.GET.get('quantity_max')
     if quantity_min:
@@ -56,7 +59,7 @@ def search(request):
     if quantity_max:
         search_results = search_results.filter(quantity__lte=quantity_max)
 
-    #Обработка сортировки при поиске товаров
+    # Обработка сортировки при поиске товаров
     sort_by = request.GET.get('sort_by')
     sort_order = request.GET.get('sort_order', 'asc')
 
@@ -68,17 +71,25 @@ def search(request):
         else:
             search_results = search_results.order_by(f'-{sort_by}')
 
-    search_results = search_results[:per_page]
+    # Пагинация
+    paginator = Paginator(search_results, per_page)
+    page = request.GET.get('page')
+    try:
+        search_results = paginator.page(page)
+    except PageNotAnInteger:
+        search_results = paginator.page(1)
+    except EmptyPage:
+        search_results = paginator.page(paginator.num_pages)
 
-    #Минимальная и максимальная цена при поиске товаров
+    # Минимальная и максимальная цена при поиске товаров
     min_price = Product.objects.aggregate(Min('price'))['price__min']
     max_price = Product.objects.aggregate(Max('price'))['price__max']
 
-    #Минимальное и максимальное количество при поиске товаров
+    # Минимальное и максимальное количество при поиске товаров
     min_quantity = Product.objects.aggregate(Min('quantity'))['quantity__min']
     max_quantity = Product.objects.aggregate(Max('quantity'))['quantity__max']
 
-    #Список брендов при поиске товаров
+    # Список брендов при поиске товаров
     brands = Brand.objects.all()
 
     context = {
@@ -97,11 +108,15 @@ def search(request):
 #Категории товаров
 def category_detail(request, slug):
     category = get_object_or_404(ProductCategory, slug=slug)
-    per_page = int(request.GET.get('per_page', 10))
+    per_page_str = request.GET.get('per_page', '10')
+    if not per_page_str:
+        per_page_str = '10'
+    per_page = int(per_page_str)
+
     products = Product.objects.filter(category=category, publish=True)
     categories = ProductCategory.objects.all()
 
-    #Фильтрация по цене на странице с категориями
+    # Фильтрация по цене на странице с категориями
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
     if price_min:
@@ -109,22 +124,22 @@ def category_detail(request, slug):
     if price_max:
         products = products.filter(price__lte=price_max)
 
-    #Фильтрация по категориям
+    # Фильтрация по категориям
     selected_categories = request.GET.getlist('category')
     if selected_categories:
         products = products.filter(category__id__in=selected_categories)
 
-    #Фильтрация по брендам на странице с категориями
+    # Фильтрация по брендам на странице с категориями
     selected_brands = request.GET.getlist('brand')
     if selected_brands:
         products = products.filter(brand__id__in=selected_brands)
 
-    #Фильтрация по названию на странице с категориями
+    # Фильтрация по названию на странице с категориями
     name = request.GET.get('name')
     if name:
         products = products.filter(Q(title__icontains=name) | Q(description__icontains=name))
 
-    #Фильтрация по количеству на странице с категориями
+    # Фильтрация по количеству на странице с категориями
     quantity_min = request.GET.get('quantity_min')
     quantity_max = request.GET.get('quantity_max')
     if quantity_min:
@@ -132,7 +147,7 @@ def category_detail(request, slug):
     if quantity_max:
         products = products.filter(quantity__lte=quantity_max)
 
-    #Обработка сортировки на странице с категориями
+    # Обработка сортировки на странице с категориями
     sort_by = request.GET.get('sort_by')
     sort_order = request.GET.get('sort_order', 'asc')
 
@@ -144,17 +159,25 @@ def category_detail(request, slug):
         else:
             products = products.order_by(f'-{sort_by}')
 
-    products = products[:per_page]
+    # Пагинация
+    paginator = Paginator(products, per_page)
+    page = request.GET.get('page')
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
 
-    #Минимальная и максимальная цены на странице с категориями
+    # Минимальная и максимальная цены на странице с категориями
     min_price = Product.objects.aggregate(Min('price'))['price__min']
     max_price = Product.objects.aggregate(Max('price'))['price__max']
 
-    #Минимальное и максимальное количество на странице с категориями
+    # Минимальное и максимальное количество на странице с категориями
     min_quantity = Product.objects.aggregate(Min('quantity'))['quantity__min']
     max_quantity = Product.objects.aggregate(Max('quantity'))['quantity__max']
 
-    #Список брендов на странице с категориями
+    # Список брендов на странице с категориями
     brands = Brand.objects.all()
 
     context = {
