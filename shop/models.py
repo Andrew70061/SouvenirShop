@@ -137,6 +137,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, null=True, blank=True)
     first_name = models.CharField(verbose_name='Имя', max_length=50)
     last_name = models.CharField(verbose_name='Фамилия', max_length=50)
+    phone_number = models.CharField(verbose_name='Номер телефона', max_length=12, default='')
     email = models.EmailField(verbose_name='Email')
     address = models.CharField(verbose_name='Адрес', max_length=250)
     postal_code = models.CharField(verbose_name='Индекс', max_length=20)
