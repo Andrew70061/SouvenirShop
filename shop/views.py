@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Product, ProductCategory, Cart, CartItem, Order, OrderItem, Brand
 from .forms import CustomUserCreationForm, ProfileEditForm, RemoveFromCartForm
 from django.contrib import messages
@@ -170,16 +171,18 @@ def category_detail(request, slug):
     return render(request, 'category_detail.html', context)
 
 
-#index и фильтры
+#Товары и фильтры(index)
 def index(request):
-    per_page = int(request.GET.get('per_page', 10))
+    per_page_str = request.GET.get('per_page', '10')
+    if not per_page_str:
+        per_page_str = '10'
+    per_page = int(per_page_str)
+
     products = Product.objects.filter(publish=True)
     categories = ProductCategory.objects.all()
-
-    #Список брендов из бд
     brands = Brand.objects.all()
 
-    #Фильтрация по цене
+    # Фильтрация по цене
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
     if price_min:
@@ -187,22 +190,22 @@ def index(request):
     if price_max:
         products = products.filter(price__lte=price_max)
 
-    #Фильтрация по категориям
+    # Фильтрация по категориям
     category_ids = request.GET.getlist('category')
     if category_ids:
         products = products.filter(category__id__in=category_ids)
 
-    #Фильтрация по брендам
+    # Фильтрация по брендам
     brand_ids = request.GET.getlist('brand')
     if brand_ids:
         products = products.filter(brand__id__in=brand_ids)
 
-    #Фильтрация по названию
+    # Фильтрация по названию
     name = request.GET.get('name')
     if name:
         products = products.filter(Q(title__icontains=name) | Q(description__icontains=name))
 
-    #Фильтрация по количеству
+    # Фильтрация по количеству
     quantity_min = request.GET.get('quantity_min')
     quantity_max = request.GET.get('quantity_max')
     if quantity_min:
@@ -210,7 +213,7 @@ def index(request):
     if quantity_max:
         products = products.filter(quantity__lte=quantity_max)
 
-    #Обработка сортировки
+    # Обработка сортировки
     sort_by = request.GET.get('sort_by')
     sort_order = request.GET.get('sort_order', 'asc')  # По умолчанию сортировка по возрастанию
 
@@ -222,14 +225,22 @@ def index(request):
         else:
             products = products.order_by(f'-{sort_by}')
 
-    products = products[:per_page]
+    # Пагинация
+    paginator = Paginator(products, per_page)
+    page = request.GET.get('page')
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
 
-    #Минимальная и максимальная цены из базы данных
+    # Минимальная и максимальная цены из базы данных
     price_range = Product.objects.aggregate(min_price=Min('price'), max_price=Max('price'))
     min_price = price_range['min_price'] or 0
     max_price = price_range['max_price'] or 1000
 
-    #Минимальная и максимальная количество из базы данных
+    # Минимальная и максимальная количество из базы данных
     quantity_range = Product.objects.aggregate(min_quantity=Min('quantity'), max_quantity=Max('quantity'))
     min_quantity = quantity_range['min_quantity'] or 0
     max_quantity = quantity_range['max_quantity'] or 10000
