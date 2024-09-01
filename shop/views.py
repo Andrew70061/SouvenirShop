@@ -457,3 +457,53 @@ def checkout(request):
         return redirect(reverse('shop:orders'))
 
     return render(request, 'checkout.html')
+
+
+#Заказ в 1 клик
+@csrf_exempt
+def buy_one_click(request):
+    if request.method == 'POST':
+        #Получение данных формы оформления заказа для bd
+        name = request.POST.get('name')
+        phone_number = request.POST.get('phone')
+        comment = request.POST.get('comment')
+        product_id = request.POST.get('product_id')
+
+        #Проверка наличия
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return render(request, 'error.html', {'message': 'Product not found'})
+
+        #Создание заказа в bd
+        order = Order.objects.create(
+            first_name=name,
+            phone_number=phone_number,
+            comment= comment
+        )
+
+        #Создание OrderItem
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=1,
+            price=product.price
+        )
+
+        return redirect(reverse('shop:index'))
+    else:
+        return render(request, 'error.html', {'message': 'Method not allowed'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
