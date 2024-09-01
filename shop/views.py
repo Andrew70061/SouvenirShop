@@ -194,7 +194,7 @@ def category_detail(request, slug):
     return render(request, 'category_detail.html', context)
 
 
-#Товары и фильтры(index)
+#Страница товары и фильтры(index)
 def index(request):
     per_page_str = request.GET.get('per_page', '10')
     if not per_page_str:
@@ -279,6 +279,21 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
+
+
+#Страница каждого товара
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'product_detail.html', {'product': product})
+
+
+
+
+
+
+
+
+
 
 
 #Страница о нас
