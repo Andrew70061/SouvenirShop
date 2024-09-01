@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.db.models import Q, Min, Max
 
 
+#===========================================Сайт_интернет-магазина_SouvenirShop========================================#
+
 #Поиск на сайте
 def search(request):
     query = request.GET.get('q')
@@ -287,15 +289,6 @@ def product_detail(request, product_id):
     return render(request, 'product_detail.html', {'product': product})
 
 
-
-
-
-
-
-
-
-
-
 #Страница о нас
 def about(request):
     categories = ProductCategory.objects.all()
@@ -484,7 +477,7 @@ def buy_one_click(request):
         comment = request.POST.get('comment')
         product_id = request.POST.get('product_id')
 
-        #Проверка наличия
+        #Проверка наличия товара
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
@@ -497,7 +490,6 @@ def buy_one_click(request):
             comment= comment
         )
 
-        #Создание OrderItem
         OrderItem.objects.create(
             order=order,
             product=product,
@@ -510,15 +502,4 @@ def buy_one_click(request):
         return render(request, 'error.html', {'message': 'Method not allowed'})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+#===========================================Сайт_интернет-магазина_SouvenirShop========================================#

@@ -8,9 +8,9 @@
         margin: 20px;
     }
     .product-image {
-        width: 300px; /* Фиксированный размер */
-        height: 300px; /* Фиксированный размер */
-        object-fit: cover; /* Поддерживается не всеми браузерами */
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
         margin-right: 20px;
     }
     .product-info {
@@ -21,7 +21,7 @@
     .product-info h1 {
         font-size: 2em;
         margin-bottom: 10px;
-        font-weight: normal; /* Убираем жирное выделение */
+        font-weight: normal;
     }
     .product-info .price {
         font-size: 1.5em;
@@ -33,7 +33,7 @@
         gap: 10px;
     }
     .btn-outline-primary, .btn-outline-success {
-        width: 200px; /* Одинаковый размер кнопок */
+        width: 200px;
     }
     .modal {
         display: none;
@@ -78,6 +78,40 @@
         border-color: #1919e6 / #00f;
         color: #1919e6 / #00f;
     }
+    .tabs {
+        margin-top: 20px;
+    }
+    .tab-links {
+        display: flex;
+        gap: 10px;
+    }
+    .tab-link {
+        cursor: pointer;
+        padding: 10px;
+        border: none;
+        background: transparent;
+        color: black;
+        font-weight: normal;
+    }
+    .tab-link.active {
+        color: green;
+    }
+    .tab-content {
+        margin-top: 10px;
+        padding: 10px;
+    }
+    .tab-content table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .tab-content th, .tab-content td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        font-weight: normal;
+    }
+    .tab-content th {
+        background-color: transparent;
+    }
 </style>
 <div class="product-detail">
     {% if product.image %}
@@ -93,6 +127,74 @@
             </form>
             <button type="button" class="btn btn-outline-primary" onclick="openModal('{{ product.id }}')">Купить в 1 клик</button>
         </div>
+    </div>
+</div>
+<div class="tabs">
+    <div class="tab-links">
+        <div class="tab-link active" data-tab="description">Описание</div>
+        <div class="tab-link" data-tab="characteristics">Характеристики</div>
+        <div class="tab-link" data-tab="dimensions">Габариты и вес</div>
+        <div class="tab-link" data-tab="supplier">Поставщик</div>
+        <!-- Добавьте другие вкладки здесь, если необходимо -->
+    </div>
+    <div class="tab-content" id="description">
+        <p>{{ product.description }}</p>
+    </div>
+    <div class="tab-content" id="characteristics" style="display: none;">
+        <table>
+            <tr>
+                <th>Категория</th>
+                <td>{{ product.category }}</td>
+            </tr>
+            <tr>
+                <th>Артикул</th>
+                <td>{{ product.sku }}</td>
+            </tr>
+            <tr>
+                <th>Штрихкод</th>
+                <td>{{ product.barcode }}</td>
+            </tr>
+            <tr>
+                <th>Страна-производитель</th>
+                <td>{{ product.manufacturer_countries }}</td>
+            </tr>
+            <tr>
+                <th>Бренд</th>
+                <td>{{ product.brand }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="tab-content" id="dimensions" style="display: none;">
+        <table>
+            <tr>
+                <th>Длина (см.)</th>
+                <td>{{ product.length }}</td>
+            </tr>
+            <tr>
+                <th>Ширина (см.)</th>
+                <td>{{ product.width }}</td>
+            </tr>
+            <tr>
+                <th>Высота (см.)</th>
+                <td>{{ product.height }}</td>
+            </tr>
+            <tr>
+                <th>Вес (г.)</th>
+                <td>{{ product.weight }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="tab-content" id="supplier" style="display: none;">
+        <table>
+            <tr>
+                <th>Поставщик</th>
+                <td>{{ product.supplier }}</td>
+            </tr>
+            <tr>
+                <th>Артикул у поставщика</th>
+                <td>{{ product.supplier_sku }}</td>
+            </tr>
+        </table>
     </div>
 </div>
 <div id="buy-one-click-modal" class="modal">
@@ -137,5 +239,21 @@
             closeModal();
         }
     }
+
+    document.querySelectorAll('.tab-link').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab-link').forEach(function(link) {
+                link.classList.remove('active');
+            });
+            this.classList.add('active');
+            var tabId = this.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+        });
+    });
+
+    document.getElementById('description').style.display = 'block';
 </script>
 {% endblock %}
