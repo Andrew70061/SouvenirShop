@@ -77,10 +77,23 @@
                     <div class="text-center mb-3">
                         Уже зарегистрированы ? <a href="{% url 'login' %}">Вход</a>
                     </div>
-                    <button type="submit" class="btn btn-outline-success btn-block">Зарегистрироваться</button>
+                    <button type="submit" class="btn btn-custom btn-block">Зарегистрироваться</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .btn-custom {
+        color: #c21631;
+        border-color: #c21631;
+        background-color: transparent;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .btn-custom:hover {
+        background-color: #c21631;
+        color: white;
+    }
+</style>
 {% endblock %}
