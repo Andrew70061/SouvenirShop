@@ -36,10 +36,23 @@
                     <div class="text-center mb-3">
                         Еще не зарегистрированы ? <a href="{% url 'shop:register' %}">Регистрация</a>
                     </div>
-                    <button type="submit" class="btn btn-outline-success btn-block">Войти</button>
+                    <button type="submit" class="btn btn-custom btn-block">Войти</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .btn-custom {
+        color: #c21631;
+        border-color: #c21631;
+        background-color: transparent;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .btn-custom:hover {
+        background-color: #c21631;
+        color: white;
+    }
+</style>
 {% endblock %}
