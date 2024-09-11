@@ -61,7 +61,7 @@
             padding: 20px 0;
             border-top: 1px solid #ddd;
         }
-           .footer p, .footer a {
+        .footer p, .footer a {
             color: white;
         }
         .footer .row {
@@ -92,12 +92,12 @@
         .cart-icon .fas {
             font-size: 1.5rem;
             margin-bottom: 5px;
-            color: #28a745;
+            color: #c21631;
         }
         .cart-icon a {
-            color: #28a745;
+            color: #c21631;
             text-decoration: none;
-            border: 1px solid #28a745;
+            border: 1px solid #c21631;
             padding: 5px 10px;
             border-radius: 5px;
             transition-duration: 0.4s;
@@ -107,11 +107,27 @@
             height: 38px;
         }
         .cart-icon a:hover {
-            background-color: #28a745;
+            background-color: #c21631;
             color: white;
         }
         .btn-outline-success {
             height: 38px;
+        }
+        .btn-custom {
+            color: #c21631;
+            border-color: #c21631;
+            background-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #c21631;
+            color: white;
+        }
+        .cart-icon a span {
+            color: #c21631;
+        }
+        .cart-icon a:hover span {
+            color: white;
         }
     </style>
 </head>
@@ -128,7 +144,7 @@
                         <div class="input-group">
                             <input class="form-control" type="search" placeholder="Поиск" aria-label="Search" name="q">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-success" type="submit">Поиск</button>
+                                <button class="btn btn-custom" type="submit">Поиск</button>
                             </div>
                         </div>
                     </form>
@@ -170,7 +186,7 @@
                             <li class="nav-item">
                                 <form action="{% url 'logout' %}" method="post" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-success btn-block">Выйти</button>
+                                    <button type="submit" class="btn btn-custom btn-block">Выйти</button>
                                 </form>
                             </li>
                             {% else %}
@@ -178,13 +194,13 @@
                                 <a class="nav-link" href="{% url 'shop:register' %}">Регистрация</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-outline-success btn-block" href="{% url 'login' %}">Вход</a>
+                                <a class="btn btn-custom btn-block" href="{% url 'login' %}">Вход</a>
                             </li>
                             {% endif %}
                             <li class="nav-item cart-icon">
-                                <a class="nav-link" href="{% url 'shop:view_cart' %}">
+                                <a class="nav-link btn btn-custom" href="{% url 'shop:view_cart' %}">
                                     <i class="fas fa-shopping-cart"></i>
-                                    Корзина
+                                    <span>Корзина</span>
                                 </a>
                             </li>
                         </ul>
