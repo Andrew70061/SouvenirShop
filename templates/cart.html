@@ -61,7 +61,7 @@
             </table>
         </div>
         <div class="text-right">
-            <a href="{% url 'shop:checkout' %}" class="btn btn-outline-success">Оформить заказ</a>
+            <a href="{% url 'shop:checkout' %}" class="btn btn-custom">Оформить заказ</a>
         </div>
     {% else %}
         <p>Ваша корзина пуста.</p>
@@ -83,6 +83,16 @@
         }
         .quantity-input {
             -moz-appearance: textfield;
+        }
+        .btn-custom {
+            color: #c21631;
+            border-color: #c21631;
+            background-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #c21631;
+            color: white;
         }
     </style>
 
