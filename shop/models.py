@@ -23,6 +23,15 @@ class Product(models.Model):
     vendor_code = models.CharField(max_length=255, verbose_name='Партномер', blank=True)
 
 
+    #Размеры
+    size_xs = models.BooleanField(verbose_name='XS', default=False)
+    size_s = models.BooleanField(verbose_name='S', default=False)
+    size_m = models.BooleanField(verbose_name='M', default=False)
+    size_l = models.BooleanField(verbose_name='L', default=False)
+    size_xl = models.BooleanField(verbose_name='XL', default=False)
+    size_one_size = models.BooleanField(verbose_name='One Size', default=False)
+
+
     #Габариты
     length = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Длина (см.)', null=True, blank=True)
     width = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Ширина (см.)', null=True, blank=True)
