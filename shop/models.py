@@ -182,13 +182,24 @@ class Order(models.Model):
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
 
-
+#Товар в заказе
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
     discount = models.DecimalField(verbose_name='Цена со скидкой', max_digits=20, decimal_places=2, default=0)
+
+    # Добавляем поле для выбора размера
+    SIZE_CHOICES = [
+        ('XS', 'XS'),
+        ('S', 'S'),
+        ('M', 'M'),
+        ('L', 'L'),
+        ('XL', 'XL'),
+        ('One Size', 'One Size'),
+    ]
+    size = models.CharField(verbose_name='Размер', max_length=10, choices=SIZE_CHOICES, default='One Size')
 
     class Meta:
         ordering = ['pk']
