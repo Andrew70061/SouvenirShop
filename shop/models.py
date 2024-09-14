@@ -23,15 +23,6 @@ class Product(models.Model):
     vendor_code = models.CharField(max_length=255, verbose_name='Партномер', blank=True)
 
 
-    #Размеры
-    size_xs = models.BooleanField(verbose_name='XS', default=False)
-    size_s = models.BooleanField(verbose_name='S', default=False)
-    size_m = models.BooleanField(verbose_name='M', default=False)
-    size_l = models.BooleanField(verbose_name='L', default=False)
-    size_xl = models.BooleanField(verbose_name='XL', default=False)
-    size_one_size = models.BooleanField(verbose_name='One Size', default=False)
-
-
     #Габариты
     length = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Длина (см.)', null=True, blank=True)
     width = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Ширина (см.)', null=True, blank=True)
@@ -44,7 +35,12 @@ class Product(models.Model):
                                 validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Цена со скидкой',
                                      null=True, blank=True, validators=[MinValueValidator(0)])
-    quantity = models.IntegerField(verbose_name='Количество товара', default=0, null=True)
+    quantity = models.IntegerField(verbose_name='Количество товара (One size)', default=0, null=True)
+    size_xs = models.IntegerField(verbose_name='Количество (XS)', default=0, null=True)
+    size_s = models.IntegerField(verbose_name='Количество (S)', default=0, null=True)
+    size_m = models.IntegerField(verbose_name='Количество (M)', default=0, null=True)
+    size_l = models.IntegerField(verbose_name='Количество (L)', default=0, null=True)
+    size_xl = models.IntegerField(verbose_name='Количество (XL)', default=0, null=True)
 
 
     #Информация о поставках
