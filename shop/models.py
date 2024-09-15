@@ -35,12 +35,7 @@ class Product(models.Model):
                                 validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Цена со скидкой',
                                      null=True, blank=True, validators=[MinValueValidator(0)])
-    quantity = models.IntegerField(verbose_name='Количество товара (One size)', default=0, null=True)
-    size_xs = models.IntegerField(verbose_name='Количество (XS)', default=0, null=True)
-    size_s = models.IntegerField(verbose_name='Количество (S)', default=0, null=True)
-    size_m = models.IntegerField(verbose_name='Количество (M)', default=0, null=True)
-    size_l = models.IntegerField(verbose_name='Количество (L)', default=0, null=True)
-    size_xl = models.IntegerField(verbose_name='Количество (XL)', default=0, null=True)
+    quantity = models.IntegerField(verbose_name='Количество товара', default=0, null=True)
 
 
     #Информация о поставках
@@ -182,24 +177,13 @@ class Order(models.Model):
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
 
-#Товар в заказе
+#Выбор товара в заказе
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE, related_name='items')
+    order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
     discount = models.DecimalField(verbose_name='Цена со скидкой', max_digits=20, decimal_places=2, default=0)
-
-    # Добавляем поле для выбора размера
-    SIZE_CHOICES = [
-        ('XS', 'XS'),
-        ('S', 'S'),
-        ('M', 'M'),
-        ('L', 'L'),
-        ('XL', 'XL'),
-        ('One Size', 'One Size'),
-    ]
-    size = models.CharField(verbose_name='Размер', max_length=10, choices=SIZE_CHOICES, default='One Size')
 
     class Meta:
         ordering = ['pk']

@@ -209,7 +209,7 @@
                                 <div class="text-center">
                                     <form action="{% url 'shop:add_to_cart' product.id %}" method="post">
                                         {% csrf_token %}
-                                        <button type="button" class="btn btn-outline-success" onclick="event.stopPropagation(); openSizeModal('{{ product.id }}')">Добавить в корзину</button>
+                                        <button type="submit" class="btn btn-outline-success">Добавить в корзину</button>
                                     </form>
                                     <button type="button" class="btn btn-outline-primary" onclick="event.stopPropagation(); openModal('{{ product.id }}')">Купить в 1 клик</button>
                                 </div>
@@ -339,25 +339,6 @@
             </form>
         </div>
     </div>
-    <div id="size-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeSizeModal()">&times;</span>
-            <h2>Выберите размер</h2>
-            <form id="size-form" method="post" action="">
-                {% csrf_token %}
-                <input type="hidden" id="size_product_id" name="product_id">
-                <div class="size-options">
-                    <label><input type="radio" name="size" value="XS"> XS</label>
-                    <label><input type="radio" name="size" value="S"> S</label>
-                    <label><input type="radio" name="size" value="M"> M</label>
-                    <label><input type="radio" name="size" value="L"> L</label>
-                    <label><input type="radio" name="size" value="XL"> XL</label>
-                    <label><input type="radio" name="size" value="One Size"> One Size</label>
-                </div>
-                <button type="submit" class="btn btn-outline-success">Добавить в корзину</button>
-            </form>
-        </div>
-    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
     <script>
         var priceSlider = document.getElementById('price-slider');
@@ -416,22 +397,9 @@
             document.getElementById('buy-one-click-modal').style.display = 'none';
         }
 
-        function openSizeModal(productId) {
-            document.getElementById('size_product_id').value = productId;
-            document.getElementById('size-form').action = "{% url 'shop:add_to_cart' product_id=0 %}".replace('0', productId);
-            document.getElementById('size-modal').style.display = 'block';
-        }
-
-        function closeSizeModal() {
-            document.getElementById('size-modal').style.display = 'none';
-        }
-
         window.onclick = function(event) {
             if (event.target == document.getElementById('buy-one-click-modal')) {
                 closeModal();
-            }
-            if (event.target == document.getElementById('size-modal')) {
-                closeSizeModal();
             }
         }
     </script>

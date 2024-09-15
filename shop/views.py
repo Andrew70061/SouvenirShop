@@ -362,16 +362,11 @@ def edit_profile(request):
 #Добавление товара в корзину
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    if request.method == 'POST':
-        size = request.POST.get('size')
-        if 'cart' not in request.session:
-            request.session['cart'] = {}
-        if product_id not in request.session['cart']:
-            request.session['cart'][product_id] = {}
-        request.session['cart'][product_id][size] = request.session['cart'][product_id].get(size, 0) + 1
-        request.session.modified = True
-        return redirect('index')
-    return render(request, 'add_to_cart.html', {'product': product})
+    if 'cart' not in request.session:
+        request.session['cart'] = {}
+    request.session['cart'][product_id] = request.session['cart'].get(product_id, 0) + 1
+    request.session.modified = True
+    return redirect('index')
 
 
 #Просмотр корзины
@@ -380,8 +375,7 @@ def view_cart(request):
     products = Product.objects.filter(id__in=cart_items.keys())
 
     for product in products:
-        product.sizes = cart_items.get(str(product.id), {})
-        product.quantity_in_cart = sum(product.sizes.values())
+        product.quantity_in_cart = cart_items.get(str(product.id), 0)
         product.total_price = product.price * product.quantity_in_cart
 
     total_price = sum(product.total_price for product in products)
