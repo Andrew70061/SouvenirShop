@@ -85,4 +85,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
-admin.site.site_header = 'Администратирование Souvenir Shop'
+admin.site.site_header = 'Администратирование MUIV Souvenir Shop'
