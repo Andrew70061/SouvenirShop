@@ -23,8 +23,12 @@ class ProductAdminInline(admin.TabularInline):
     model = ProductImages
     extra = 0
 
+#Категории
 class ProductCategoryAdmin(MPTTModelAdmin):
+    list_display = ['title']
     prepopulated_fields = {'slug': ('title',)}
+    list_filter = ['parent']
+    search_fields = ['title', 'slug']
 
 admin.site.register(ProductCategory, ProductCategoryAdmin)
 

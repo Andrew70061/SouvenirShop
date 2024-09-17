@@ -74,22 +74,19 @@ class ProductImages(models.Model):
         verbose_name = 'изображение товара'
         verbose_name_plural = 'Изображения товаров'
 
-
+#Создание категорий
 class ProductCategory(MPTTModel):
     title = models.CharField(max_length=50, unique=True, verbose_name='Название')
     slug = models.SlugField(max_length=150, verbose_name='slug', unique=True)
     parent = TreeForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name='children',
                             db_index=True, verbose_name='Родительская категория')
 
-    supplier = models.ForeignKey('Supplier', verbose_name='Поставщик', on_delete=models.CASCADE, null=True, blank=True)
-
-
     class MPTTMeta:
         order_insertion_by = ['title']
 
     class Meta:
         unique_together = [['parent', 'slug']]
-        verbose_name = 'Категория'
+        verbose_name = 'категорию'
         verbose_name_plural = 'Категории'
 
     def get_absolute_url(self):
