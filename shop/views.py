@@ -369,6 +369,37 @@ def add_to_cart(request, product_id):
     return redirect('index')
 
 
+#Добавление доставки в корзине
+def add_delivery_to_cart(request):
+    if request.method == 'POST':
+        self_pickup = request.POST.get('self_pickup') == 'True'
+        courier_delivery = request.POST.get('courier_delivery') == 'True'
+
+        if self_pickup:
+            delivery_product = get_object_or_404(Product, id=16)
+            if 'cart' in request.session and 16 in request.session['cart']:
+                del request.session['cart'][16]
+                request.session.modified = True
+
+        #Добавление доставки в корзину
+        if courier_delivery:
+            delivery_product = get_object_or_404(Product, id=16)
+            if 'cart' not in request.session:
+                request.session['cart'] = {}
+            request.session['cart'][16] = request.session['cart'].get(16, 0) + 1
+            request.session.modified = True
+
+        #Сохранение выбранного способа доставки в сессию
+        if self_pickup:
+            request.session['delivery_method'] = 'self_pickup'
+        elif courier_delivery:
+            request.session['delivery_method'] = 'courier_delivery'
+        else:
+            request.session['delivery_method'] = None
+
+    return redirect('shop:view_cart')
+
+
 #Просмотр корзины
 def view_cart(request):
     cart_items = request.session.get('cart', {})
@@ -380,7 +411,9 @@ def view_cart(request):
 
     total_price = sum(product.total_price for product in products)
 
-    return render(request, 'cart.html', {'cart_items': cart_items, 'products': products, 'total_price': total_price})
+    delivery_method = request.session.get('delivery_method', 'self_pickup')  # По умолчанию самовывоз
+
+    return render(request, 'cart.html', {'products': products, 'total_price': total_price, 'delivery_method': delivery_method})
 
 
 #Удаление товара из корзины
@@ -422,8 +455,9 @@ def update_quantity(request, product_id):
 #Оформление заказа
 @login_required
 def checkout(request):
+    delivery_method = request.session.get('delivery_method', 'self_pickup')
+
     if request.method == 'POST':
-        #Получение данных формы оформления заказа для bd
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
@@ -432,10 +466,11 @@ def checkout(request):
         postal_code = request.POST.get('postal_code')
         city = request.POST.get('city')
         comment = request.POST.get('comment')
+        self_pickup = delivery_method == 'self_pickup'
+        courier_delivery = delivery_method == 'courier_delivery'
 
-        #Создание заказа в bd
         order = Order.objects.create(
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             first_name=first_name,
             last_name=last_name,
             phone_number=phone_number,
@@ -443,21 +478,17 @@ def checkout(request):
             address=address,
             postal_code=postal_code,
             city=city,
-            comment=comment
+            comment=comment,
+            self_pickup=self_pickup,
+            courier_delivery=courier_delivery
         )
 
-        #Получение id товара для заказа в bd
         cart = request.session.get('cart', {})
         for product_id, quantity in cart.items():
             product = Product.objects.get(id=product_id)
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                price=product.price
-            )
+            OrderItem.objects.create(order=order, product=product, price=product.price, quantity=quantity)
 
-        #Очистка корзины после оформления
+        # Очищаем корзину
         request.session['cart'] = {}
 
         return redirect(reverse('shop:orders'))

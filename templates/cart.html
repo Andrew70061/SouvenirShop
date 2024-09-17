@@ -14,6 +14,7 @@
                         <th style="text-align: center;">Количество</th>
                         <th style="text-align: center;">Цена</th>
                         <th style="text-align: center;">Итого</th>
+                        <th style="text-align: center;">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,9 +32,13 @@
                             <td style="text-align: center;">
                                 <form action="{% url 'shop:update_quantity' product.id %}" method="post" class="quantity-form">
                                     {% csrf_token %}
-                                    <button type="submit" name="action" value="decrease" class="btn btn-sm btn-outline-secondary quantity-button">-</button>
-                                    <input type="number" name="quantity" value="{{ product.quantity_in_cart }}" min="1" max="{{ product.quantity }}" class="quantity-input" onchange="this.form.submit()">
-                                    <button type="submit" name="action" value="increase" class="btn btn-sm btn-outline-secondary quantity-button" {% if product.quantity_in_cart >= product.quantity %}disabled{% endif %}>+</button>
+                                    {% if product.id != 16 %}
+                                        <button type="submit" name="action" value="decrease" class="btn btn-sm btn-outline-secondary quantity-button">-</button>
+                                        <input type="number" name="quantity" value="{{ product.quantity_in_cart }}" min="1" max="{{ product.quantity }}" class="quantity-input" onchange="this.form.submit()">
+                                        <button type="submit" name="action" value="increase" class="btn btn-sm btn-outline-secondary quantity-button" {% if product.quantity_in_cart >= product.quantity %}disabled{% endif %}>+</button>
+                                    {% else %}
+                                        <input type="number" name="quantity" value="{{ product.quantity_in_cart }}" min="1" max="{{ product.quantity }}" class="quantity-input" disabled>
+                                    {% endif %}
                                 </form>
                                 {% if product.quantity_in_cart >= product.quantity %}
                                     <p class="text-danger">Для заказа доступно шт: {{ product.quantity }}</p>
@@ -60,6 +65,20 @@
                 </tfoot>
             </table>
         </div>
+
+        <h2 style="font-size: 1.2em; font-weight: normal;">Способ получения товара</h2>
+        <form action="{% url 'shop:add_delivery_to_cart' %}" method="post" class="delivery-form">
+            {% csrf_token %}
+            <div>
+                <input type="checkbox" id="self_pickup" name="self_pickup" value="True" {% if delivery_method == 'self_pickup' %}checked{% endif %}>
+                <label for="self_pickup">Самовывоз из магазина</label>
+            </div>
+            <div>
+                <input type="checkbox" id="courier_delivery" name="courier_delivery" value="True" {% if delivery_method == 'courier_delivery' %}checked{% endif %}>
+                <label for="courier_delivery">Доставка курьером</label>
+            </div>
+        </form>
+
         <div class="text-right">
             <a href="{% url 'shop:checkout' %}" class="btn btn-custom">Оформить заказ</a>
         </div>
@@ -104,6 +123,21 @@
                     this.form.submit();
                 });
             });
+
+            const deliveryForm = document.querySelector('.delivery-form');
+            if (deliveryForm) {
+                const deliveryCheckboxes = deliveryForm.querySelectorAll('input[type="checkbox"]');
+                deliveryCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        deliveryCheckboxes.forEach(cb => {
+                            if (cb !== this) {
+                                cb.checked = false;
+                            }
+                        });
+                        deliveryForm.submit();
+                    });
+                });
+            }
         });
     </script>
 {% endblock %}
