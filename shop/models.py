@@ -147,6 +147,11 @@ class Order(models.Model):
     updated = models.DateTimeField(verbose_name='Дата обновления', auto_now=True)
     paid = models.BooleanField(verbose_name='Оплачено', default=False)
 
+    #Способ доставки
+    self_pickup = models.BooleanField(verbose_name='Самовывоз из магазина', default=False)
+    courier_delivery = models.BooleanField(verbose_name='Доставка курьером', default=False)
+
+    #Статусы заказов
     STATUS_NEW = 'Новый заказ'
     STATUS_PROCESSING = 'Сборка заказа'
     STATUS_DELIVERS = 'Доставляется'
