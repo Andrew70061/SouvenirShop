@@ -343,6 +343,14 @@ def profile(request):
 @login_required
 def orders(request):
     user_orders = Order.objects.filter(user=request.user)
+    for order in user_orders:
+        order.is_paid = order.paid
+        if order.self_pickup:
+            order.delivery_method = 'Самовывоз'
+        elif order.courier_delivery:
+            order.delivery_method = 'Доставка курьером'
+        else:
+            order.delivery_method = 'Не указан'
     return render(request, 'orders.html', {'orders': user_orders})
 
 

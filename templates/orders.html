@@ -12,6 +12,8 @@
                 <small>{{ order.created }}</small>
             </div>
             <p class="mb-1">Статус: {{ order.status }}</p>
+            <p class="mb-1">Оплачено: {% if order.is_paid %}Да{% else %}Нет{% endif %}</p>
+            <p class="mb-1">Способ получения: {{ order.delivery_method }}</p>
             <ul class="list-unstyled">
                 {% for item in order.orderitem_set.all %}
                 <li class="media my-4">
