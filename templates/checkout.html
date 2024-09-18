@@ -49,17 +49,29 @@
         <textarea class="form-control" id="comment" name="comment"></textarea>
     </div>
 
-    <h2 style="font-size: 1.2em; font-weight: normal;">Способ получения товара</h2>
+    <h2 style="font-size: 1.2em; font-weight: normal;">Способ оплаты</h2>
     <div class="form-group">
-        {% if delivery_method == 'self_pickup' %}
-            <input type="checkbox" id="self_pickup" name="self_pickup" value="True" checked disabled>
-            <label for="self_pickup">Самовывоз из магазина</label>
-        {% elif delivery_method == 'courier_delivery' %}
-            <input type="checkbox" id="courier_delivery" name="courier_delivery" value="True" checked disabled>
-            <label for="courier_delivery">Доставка курьером</label>
-        {% endif %}
+        <input type="checkbox" id="pay_online" name="pay_online" onclick="togglePaymentMethod(this)">
+        <label for="pay_online">Оплата картой</label>
+    </div>
+    <div class="form-group">
+        <input type="checkbox" id="pay_on_delivery" name="pay_on_delivery" onclick="togglePaymentMethod(this)">
+        <label for="pay_on_delivery">Наличными или картой при получении</label>
     </div>
 
     <button type="submit" class="btn btn-outline-success">Заказать</button>
 </form>
+
+<script>
+    function togglePaymentMethod(checkbox) {
+        var payOnline = document.getElementById('pay_online');
+        var payOnDelivery = document.getElementById('pay_on_delivery');
+
+        if (checkbox === payOnline && payOnline.checked) {
+            payOnDelivery.checked = false;
+        } else if (checkbox === payOnDelivery && payOnDelivery.checked) {
+            payOnline.checked = false;
+        }
+    }
+</script>
 {% endblock %}

@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mptt',
     'shop.apps.ShopConfig',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -101,32 +102,32 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'media/static'),
 ]
 
-# Media files
+#Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 #Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Аутентификация
+#Аутентификация
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# URL для перенаправления после входа
+#URL для перенаправления после входа
 LOGIN_REDIRECT_URL = 'index'
 
-# URL для перенаправления после выхода
+#URL для перенаправления после выхода
 LOGOUT_REDIRECT_URL = 'index'
 
-#Меседжы входа
+#Месенджы входа
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 CART_SESSION_ID = 'cart'
 
-# Логирование
+#Логирование
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -140,3 +141,17 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+
+#Django-Payments для тестовой оплаты
+PAYMENT_VARIANTS = {
+    'default': ('payments.dummy.DummyProvider', {
+        'secret': 'test_secret_key_souvenir_shop_muiv',
+    })
+}
+
+#Хост платежей
+PAYMENT_HOST = '127.0.0.1:8000'
+
+#Модель платежа
+PAYMENT_MODEL = 'shop.Payment'

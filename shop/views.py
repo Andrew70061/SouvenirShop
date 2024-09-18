@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from payments import get_payment_model, RedirectNeeded, PaymentStatus
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Product, ProductCategory, Order, OrderItem, Brand
 from .forms import CustomUserCreationForm, ProfileEditForm
@@ -468,6 +469,8 @@ def checkout(request):
         comment = request.POST.get('comment')
         self_pickup = delivery_method == 'self_pickup'
         courier_delivery = delivery_method == 'courier_delivery'
+        pay_online = request.POST.get('pay_online') == 'on'
+        pay_on_delivery = request.POST.get('pay_on_delivery') == 'on'
 
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
@@ -480,7 +483,8 @@ def checkout(request):
             city=city,
             comment=comment,
             self_pickup=self_pickup,
-            courier_delivery=courier_delivery
+            courier_delivery=courier_delivery,
+            paid=pay_online
         )
 
         cart = request.session.get('cart', {})
@@ -488,10 +492,15 @@ def checkout(request):
             product = Product.objects.get(id=product_id)
             OrderItem.objects.create(order=order, product=product, price=product.price, quantity=quantity)
 
-        # Очищаем корзину
+        #Очистка корзины
         request.session['cart'] = {}
 
-        return redirect(reverse('shop:orders'))
+        if pay_online:
+            return redirect(reverse('shop:orders'))
+        elif pay_on_delivery:
+            return redirect(reverse('shop:orders'))
+        else:
+            return redirect(reverse('shop:orders'))
 
     return render(request, 'checkout.html')
 
@@ -529,6 +538,33 @@ def buy_one_click(request):
         return redirect(reverse('shop:index'))
     else:
         return render(request, 'error.html', {'message': 'Method not allowed'})
+
+
+#Создание платежа
+def create_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    Payment = get_payment_model()
+    payment = Payment.objects.create(
+        variant='default',
+        currency='RUB',
+        description=f'Order #{order.id}'
+    )
+    try:
+        return redirect(payment.get_process_url())
+    except RedirectNeeded as redirect_to:
+        return redirect(str(redirect_to))
+
+
+#Обработка платежа
+def payment_success(request, payment_id):
+    payment = get_object_or_404(get_payment_model(), id=payment_id)
+    if payment.status == PaymentStatus.CONFIRMED:
+        order_id = payment.description.split('#')[1]
+        order = get_object_or_404(Order, id=order_id)
+        order.paid = True
+        order.save()
+        return render(request, 'payment_success.html')
+    return render(request, 'payment_failure.html')
 
 
 #===========================================Сайт_интернет-магазина_SouvenirShop========================================#

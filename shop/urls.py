@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (index, search, category_detail, about, contact, register,
-profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, product_detail)
+profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, product_detail,create_payment, payment_success,)
 from django.contrib.auth import views as auth_views
 
 app_name = 'shop'
@@ -25,4 +25,6 @@ urlpatterns = [
     path('cart/update_quantity/<int:product_id>/', update_quantity, name='update_quantity'),
     path('buy_one_click/', buy_one_click, name='buy_one_click'),
     path('product/<int:product_id>/', product_detail, name='product_detail'),
+    path('order/<int:order_id>/payment/', create_payment, name='create_payment'),
+    path('payment/<int:payment_id>/success/', payment_success, name='payment_success'),
 ]
