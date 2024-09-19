@@ -187,16 +187,28 @@ class OrderItem(models.Model):
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
     discount = models.DecimalField(verbose_name='Цена со скидкой', max_digits=20, decimal_places=2, default=0)
 
+    # Добавляем поля из модели Product
+    product_title = models.CharField(max_length=255, verbose_name='Название товара', blank=True, editable=False)
+    product_id_value = models.IntegerField(verbose_name='ID товара', blank=True, editable=False)
+    product_image = models.ImageField(upload_to='products/', verbose_name='Изображение', null=True, blank=True, editable=False)
+
     class Meta:
         ordering = ['pk']
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
     def __str__(self):
-        return f'{self.product} --- {self.price}'
+        return f'{self.product.title} --- {self.price}'
 
     def get_cost(self):
         return self.price * self.quantity
+
+    def save(self, *args, **kwargs):
+        # Заполняем поля из модели Product
+        self.product_title = self.product.title
+        self.product_id_value = self.product.id
+        self.product_image = self.product.image
+        super().save(*args, **kwargs)
 
 
 #Корзина

@@ -2,6 +2,8 @@ from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
 from django.contrib.auth.admin import UserAdmin
 
 #Админка
@@ -18,7 +20,7 @@ class ProductImagesAdmin(admin.ModelAdmin):
 admin.site.register(ProductImages, ProductImagesAdmin)
 
 
-#Категории и связанные объекты
+#Товары
 class ProductAdminInline(admin.TabularInline):
     model = ProductImages
     extra = 0
@@ -52,10 +54,11 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 
 
-#Заказы
+#Выбор товара в заказе
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    raw_id_fields = ['product']
+    ForeignKey = ['product']
+
 
 #Фильтр по статусам заказов
 class StatusFilter(admin.SimpleListFilter):
@@ -70,6 +73,7 @@ class StatusFilter(admin.SimpleListFilter):
             return queryset.filter(status=self.value())
         return queryset
 
+
 #Заказы и поиск по заказам
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email', 'address',
@@ -81,7 +85,7 @@ class OrderAdmin(admin.ModelAdmin):
 admin.site.register(Order, OrderAdmin)
 
 
-#Добавляем регистрацию модели User
+#Пользователи
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('username', 'email')
