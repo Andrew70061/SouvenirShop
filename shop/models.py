@@ -10,6 +10,7 @@ from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 
 
+
 #Создание товары
 class Product(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название товара')
@@ -301,3 +302,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment #{self.id}"
+
+
+#Отчеты
+class Report(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название отчета', editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    class Meta:
+        verbose_name = 'Выгрузку отчета по заказам'
+        verbose_name_plural = 'Отчеты'
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Проверяем, что это новый объект
+            self.name = "Отчет по заказам"
+        super().save(*args, **kwargs)

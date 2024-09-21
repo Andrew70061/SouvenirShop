@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from payments import get_payment_model, RedirectNeeded, PaymentStatus
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .models import Product, ProductCategory, Order, OrderItem, Brand
+from django.http import HttpResponse
+from .models import Product, ProductCategory, Order, OrderItem, Brand, Report
+import csv
+import pandas as pd
 from .forms import CustomUserCreationForm, ProfileEditForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -606,3 +609,44 @@ def payment_success(request, payment_id):
 
 
 #===========================================Сайт_интернет-магазина_SouvenirShop========================================#
+
+
+#===========================================Веб-приложение_SouvenirShopMUIV============================================#
+#Выгрузка отчета
+def export_orders_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="orders.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Имя', 'Фамилия', 'Телефон', 'Email', 'Адрес', 'Индекс', 'Город', 'Комментарий', 'Дата создания', 'Оплачено'])
+
+    orders = Order.objects.all().values_list('id', 'first_name', 'last_name', 'phone_number', 'email', 'address', 'postal_code', 'city', 'comment', 'created', 'paid')
+    for order in orders:
+        writer.writerow(order)
+
+    return response
+
+def export_orders_excel(request):
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="orders.xlsx"'
+
+    orders = Order.objects.all()
+    data = {
+        'ID': [order.id for order in orders],
+        'Имя': [order.first_name for order in orders],
+        'Фамилия': [order.last_name for order in orders],
+        'Телефон': [order.phone_number for order in orders],
+        'Email': [order.email for order in orders],
+        'Адрес': [order.address for order in orders],
+        'Индекс': [order.postal_code for order in orders],
+        'Город': [order.city for order in orders],
+        'Комментарий': [order.comment for order in orders],
+        'Дата создания': [order.created for order in orders],
+        'Оплачено': [order.paid for order in orders],
+    }
+
+    df = pd.DataFrame(data)
+    df.to_excel(response, index=False)
+
+    return response
+

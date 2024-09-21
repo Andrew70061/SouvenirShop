@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (index, search, category_detail, about, contact, register,
-profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, product_detail,create_payment, payment_success,)
+profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, product_detail,create_payment, payment_success,export_orders_csv,export_orders_excel )
 from django.contrib.auth import views as auth_views
 
 app_name = 'shop'
@@ -27,4 +27,6 @@ urlpatterns = [
     path('product/<int:product_id>/', product_detail, name='product_detail'),
     path('order/<int:order_id>/payment/', create_payment, name='create_payment'),
     path('payment/<int:payment_id>/success/', payment_success, name='payment_success'),
+    path('export/orders/csv/', export_orders_csv, name='export_orders_csv'),
+    path('export/orders/excel/', export_orders_excel, name='export_orders_excel'),
 ]

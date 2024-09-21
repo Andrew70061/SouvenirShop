@@ -1,8 +1,12 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
-from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand, SupplyItem,Supply
+from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand, SupplyItem,Supply, Report
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
+from django.http import HttpResponse
+import csv
+import pandas as pd
+from datetime import datetime, timezone
 
 
 #Поставщики и поставки
@@ -127,4 +131,58 @@ class CustomUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
+
+#Отчеты
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_at')
+    actions = ['export_orders_csv', 'export_orders_excel']
+
+    def save_model(self, request, obj, form, change):
+        obj.name = "Отчет по заказам"
+        super().save_model(request, obj, form, change)
+
+    def export_orders_csv(self, request, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="orders.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['ID', 'Имя', 'Фамилия', 'Телефон', 'Email', 'Адрес', 'Индекс', 'Город', 'Комментарий', 'Дата создания', 'Оплачено'])
+
+        orders = Order.objects.all().values_list('id', 'first_name', 'last_name', 'phone_number', 'email', 'address', 'postal_code', 'city', 'comment', 'created', 'paid')
+        for order in orders:
+            writer.writerow(order)
+
+        return response
+    export_orders_csv.short_description = 'Выгрузить заказы в CSV'
+
+    def export_orders_excel(self, request, queryset):
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="orders.xlsx"'
+
+        orders = Order.objects.all()
+        data = {
+            'ID': [order.id for order in orders],
+            'Имя': [order.first_name for order in orders],
+            'Фамилия': [order.last_name for order in orders],
+            'Телефон': [order.phone_number for order in orders],
+            'Email': [order.email for order in orders],
+            'Адрес': [order.address for order in orders],
+            'Индекс': [order.postal_code for order in orders],
+            'Город': [order.city for order in orders],
+            'Комментарий': [order.comment for order in orders],
+            'Дата создания': [order.created.astimezone(timezone.utc).replace(tzinfo=None) for order in orders],
+            'Оплачено': [order.paid for order in orders],
+        }
+
+        df = pd.DataFrame(data)
+        df.to_excel(response, index=False)
+
+        return response
+    export_orders_excel.short_description = 'Выгрузить заказы в Excel'
+
+admin.site.register(Report, ReportAdmin)
+
+
+
+#Название в панели навигации
 admin.site.site_header = 'Администратирование MUIV Souvenir Shop'
