@@ -1,14 +1,26 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
-from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand
+from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand, SupplyItem,Supply
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
-#Админка
+
+#Поставщики и поставки
 class SupplierAdmin(admin.ModelAdmin):
-    pass
+    search_fields = [ 'name', 'first_name', 'last_name', 'email', 'phone']
+
+class SupplyItemInline(admin.TabularInline):
+    model = SupplyItem
+    extra = 1
+
+class SupplyAdmin(admin.ModelAdmin):
+    inlines = [SupplyItemInline]
+    list_display = ['id_supply','supplier', 'responsible', 'act_number']
+    search_fields = ['number', 'supplier__name', 'responsible__username', 'act_number']
+    list_filter = ['supplier__name']
 
 admin.site.register(Supplier, SupplierAdmin)
+admin.site.register(Supply, SupplyAdmin)
 
 
 #Картинки для товаров

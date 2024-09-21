@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.contrib import admin
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
@@ -115,6 +117,48 @@ class Supplier(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+#Поставки
+class Supply(models.Model):
+    id_supply = models.PositiveIntegerField(verbose_name='Номер поставки', unique=True)
+    supplier = models.ForeignKey(Supplier, verbose_name='Поставщик', on_delete=models.CASCADE)
+    responsible = models.ForeignKey(User, verbose_name='Ответственный', on_delete=models.CASCADE, limit_choices_to={'is_staff': True})
+    act_number = models.CharField(max_length=5, verbose_name='Номер акта приема-передачи')
+    comment = models.TextField(verbose_name='Комментарий', blank=True)
+
+    class Meta:
+        verbose_name = 'Поставка'
+        verbose_name_plural = 'Поставки'
+
+    def __str__(self):
+        return f'Поставка №{self.id_supply}'
+
+@receiver(pre_save, sender=Supply)
+def set_supply_number(sender, instance, **kwargs):
+    if not instance.id_supply:
+        #Получение последнего номера поставки
+        last_supply = Supply.objects.order_by('-id_supply').first()
+        if last_supply:
+            instance.id_supply = last_supply.id_supply + 1
+        else:
+            instance.id_supply = 1
+    #Проверка номера поставки на уникальность номера поставки
+    if Supply.objects.filter(id_supply=instance.id_supply).exclude(pk=instance.pk).exists():
+        raise ValidationError(f'{instance.id_supply} ')
+
+
+#Товар в поставке
+class SupplyItem(models.Model):
+    supply = models.ForeignKey(Supply, verbose_name='Поставка', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(verbose_name='Количество')
+
+    class Meta:
+        verbose_name = 'Товар в поставке'
+        verbose_name_plural = 'Товары в поставке'
+
+    def __str__(self):
+        return f'{self.product.title} ({self.quantity})'
+
 
 #Создание брендов
 class Brand(models.Model):
@@ -131,7 +175,7 @@ class Brand(models.Model):
 
 #Заказы
 class Order(models.Model):
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, verbose_name='Покупатель', on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'is_staff': False})
     first_name = models.CharField(verbose_name='Имя', max_length=50)
     last_name = models.CharField(verbose_name='Фамилия', max_length=50)
     phone_number = models.CharField(verbose_name='Номер телефона', max_length=12, default='')
