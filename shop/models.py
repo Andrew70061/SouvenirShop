@@ -33,8 +33,6 @@ class Product(models.Model):
     #Цена и остатки
     price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Цена', default=1,
                                 validators=[MinValueValidator(0)])
-    sale_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Цена со скидкой',
-                                     null=True, blank=True, validators=[MinValueValidator(0)])
     quantity = models.IntegerField(verbose_name='Количество товара', default=0, null=True)
 
 
@@ -185,7 +183,6 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
-    discount = models.DecimalField(verbose_name='Цена со скидкой', max_digits=20, decimal_places=2, default=0)
 
     # Добавляем поля из модели Product
     product_title = models.CharField(max_length=255, verbose_name='Название товара', blank=True, editable=False)

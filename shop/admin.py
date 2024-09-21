@@ -45,7 +45,7 @@ admin.site.register(Brand, BrandAdmin)
 
 #Товары
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'price', 'sale_price', 'quantity', 'publish', 'created', 'updated']
+    list_display = ['title', 'price', 'quantity', 'publish', 'created', 'updated']
     list_filter = ['publish', 'created']
     list_editable = ['quantity', 'publish']
     prepopulated_fields = {'slug': ('title',)}
