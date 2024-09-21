@@ -41,7 +41,7 @@ class Product(models.Model):
     quantity = models.IntegerField(verbose_name='Количество товара', default=0, null=True)
 
 
-    #Информация о поставках
+    #Информация о поставщике товара
     supplier = models.ForeignKey('Supplier', verbose_name='Поставщик', on_delete=models.CASCADE, null=True, blank=True)
     supplier_sku = models.IntegerField(verbose_name='Артикул у поставщика', default=0, null=True)
     supplier_url = models.URLField(verbose_name='URL', blank=True)
@@ -67,7 +67,7 @@ class Product(models.Model):
     def __str__(self):
         return f'{self.title} / Цена: {self.price} / Количество на складе: {self.quantity}'
 
-
+#Фото товара
 class ProductImages(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/%Y/%m', verbose_name='Изображение')
@@ -76,6 +76,8 @@ class ProductImages(models.Model):
     class Meta:
         verbose_name = 'изображение товара'
         verbose_name_plural = 'Изображения товаров'
+
+
 
 #Создание категорий
 class ProductCategory(MPTTModel):
@@ -162,7 +164,7 @@ class SupplyItem(models.Model):
 
 @receiver(post_save, sender=SupplyItem)
 def update_product_quantity(sender, instance, **kwargs):
-    # Прибавляем остаток товара на склад
+    #Прибавление остатка товара
     instance.product.quantity += instance.quantity
     instance.product.save()
 
