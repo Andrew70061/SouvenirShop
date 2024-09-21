@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin
@@ -158,6 +159,12 @@ class SupplyItem(models.Model):
 
     def __str__(self):
         return f'{self.product.title} ({self.quantity})'
+
+@receiver(post_save, sender=SupplyItem)
+def update_product_quantity(sender, instance, **kwargs):
+    # Прибавляем остаток товара на склад
+    instance.product.quantity += instance.quantity
+    instance.product.save()
 
 
 #Создание брендов
