@@ -184,7 +184,7 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
 
-    # Добавляем поля из модели Product
+
     product_title = models.CharField(max_length=255, verbose_name='Название товара', blank=True, editable=False)
     product_id_value = models.IntegerField(verbose_name='ID товара', blank=True, editable=False)
     product_image = models.ImageField(upload_to='products/', verbose_name='Изображение', null=True, blank=True, editable=False)

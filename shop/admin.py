@@ -2,8 +2,6 @@ from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand
 from django.contrib.auth.models import User
-from django.utils.safestring import mark_safe
-from django.template.loader import render_to_string
 from django.contrib.auth.admin import UserAdmin
 
 #Админка
