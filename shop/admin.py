@@ -56,6 +56,7 @@ admin.site.register(Product, ProductAdmin)
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     ForeignKey = ['product']
+    readonly_fields = ('get_cost',)
 
 
 #Фильтр по статусам заказов
@@ -72,7 +73,7 @@ class StatusFilter(admin.SimpleListFilter):
         return queryset
 
 
-#Заказы и поиск по заказам
+#Заказ и поиск по заказам
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email', 'address',
                     'postal_code', 'city', 'paid', 'created', 'updated', 'status']

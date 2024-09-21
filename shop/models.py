@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib import admin
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from django.core.validators import MinValueValidator
@@ -183,8 +184,6 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
-
-
     product_title = models.CharField(max_length=255, verbose_name='Название товара', blank=True, editable=False)
     product_id_value = models.IntegerField(verbose_name='ID товара', blank=True, editable=False)
     product_image = models.ImageField(upload_to='products/', verbose_name='Изображение', null=True, blank=True, editable=False)
@@ -192,20 +191,20 @@ class OrderItem(models.Model):
     class Meta:
         ordering = ['pk']
         verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
+        verbose_name_plural = 'Товары из заказа'
 
+    #Отображение количества товара на складе при выборе в заказе
     def __str__(self):
-        return f'{self.product.title} --- {self.price}'
+        return f'Количество на складе: {self.product.quantity}.'
 
+    #Вычисление итогов по количеству товара
+    @admin.display(description='Итого')
     def get_cost(self):
-        return self.price * self.quantity
+        return self.price * self.quantity if self.price is not None and self.quantity is not None else 0
 
-    def save(self, *args, **kwargs):
-        # Заполняем поля из модели Product
-        self.product_title = self.product.title
-        self.product_id_value = self.product.id
-        self.product_image = self.product.image
-        super().save(*args, **kwargs)
+        #Вычитание остатка из бд после создание заказа
+        self.product.quantity -= self.quantity
+        self.product.save()
 
 
 #Корзина
