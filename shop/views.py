@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.db.models import Q, Min, Max
+import asyncio
+from .telegram_bot import send_telegram_message
 
 
 #===========================================Сайт_интернет-магазина_SouvenirShop========================================#
@@ -503,6 +505,23 @@ def checkout(request):
         #Очистка корзины
         request.session['cart'] = {}
 
+        #Отправка уведомления в Telegram
+        message = (
+            f"Новый заказ №{order.id} от {order.created}\n"
+            f"Имя: {order.first_name} {order.last_name}\n"
+            f"Телефон: {order.phone_number}\n"
+            f"Email: {order.email}\n"
+            f"Адрес: {order.address}, {order.postal_code}, {order.city}\n"
+            f"Комментарий: {order.comment}\n"
+            f"Способ доставки: {'Самовывоз' if order.self_pickup else 'Доставка курьером'}\n"
+            f"Оплачено: {'Да' if order.paid else 'Нет'}\n"
+            f"Товары в заказе:\n"
+        )
+        for item in OrderItem.objects.filter(order=order):
+            message += f"- {item.product.title} (x{item.quantity}): {item.price} руб.\n"
+
+        asyncio.run(send_telegram_message(message))
+
         if pay_online:
             return redirect(reverse('shop:orders'))
         elif pay_on_delivery:
@@ -517,7 +536,7 @@ def checkout(request):
 @csrf_exempt
 def buy_one_click(request):
     if request.method == 'POST':
-        #Получение данных формы оформления заказа для bd
+        #Получение данных формы оформления заказа для бд
         name = request.POST.get('name')
         phone_number = request.POST.get('phone')
         comment = request.POST.get('comment')
@@ -542,6 +561,17 @@ def buy_one_click(request):
             quantity=1,
             price=product.price
         )
+        #Отправка уведомления в Telegram
+        message = (
+            f"Новый заказ в 1 клик №{order.id} от {order.created}\n"
+            f"Имя: {order.first_name}\n"
+            f"Телефон: {order.phone_number}\n"
+            f"Комментарий: {order.comment}\n"
+            f"Товар: {product.title}\n"
+            f"Цена: {product.price} руб.\n"
+            f"Пожалуйста, свяжитесь с покупателем для подтверждения заказа."
+        )
+        asyncio.run(send_telegram_message(message))
 
         return redirect(reverse('shop:index'))
     else:
