@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 
 
 #Создание товары
@@ -61,7 +62,7 @@ class Product(models.Model):
         verbose_name_plural = 'Товары'
 
     def __str__(self):
-        return f'{self.title} --- {self.price}'
+        return f'{self.title} / Цена: {self.price} / Количество на складе: {self.quantity}'
 
 
 class ProductImages(models.Model):
@@ -184,20 +185,22 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
     price = models.DecimalField(verbose_name='Цена', max_digits=20, decimal_places=2)
-    product_title = models.CharField(max_length=255, verbose_name='Название товара', blank=True, editable=False)
-    product_id_value = models.IntegerField(verbose_name='ID товара', blank=True, editable=False)
-    product_image = models.ImageField(upload_to='products/', verbose_name='Изображение', null=True, blank=True, editable=False)
 
     class Meta:
         ordering = ['pk']
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары из заказа'
 
-    #Отображение количества товара на складе при выборе в заказе
+    #Отображение артикула при выборе товара
     def __str__(self):
-        return f'Количество на складе: {self.product.quantity}.'
+        return f'Артикул: {self.product.sku}'
 
-    #Вычисление итогов по количеству товара
+    #Проверка остатков товара при создании заказа
+    def clean(self):
+        if self.product and self.quantity > self.product.quantity:
+            raise ValidationError(f'Количество товара в заказе превышает количество на складе. Доступно: {self.product.quantity}')
+
+    #Вычисление итоговой цены по количеству товара
     @admin.display(description='Итого')
     def get_cost(self):
         return self.price * self.quantity if self.price is not None and self.quantity is not None else 0
