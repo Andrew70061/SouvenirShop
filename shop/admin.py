@@ -81,6 +81,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['id', 'first_name', 'last_name', 'email', 'address', 'postal_code', 'city']
     inlines = [OrderItemInline]
 
+
 admin.site.register(Order, OrderAdmin)
 
 
