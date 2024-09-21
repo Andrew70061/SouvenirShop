@@ -193,19 +193,25 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'Артикул: {self.product.sku}'
 
-    #Проверка остатков товара при создании заказа
+    #Проверка остатков товара и цены при создании заказа
     def clean(self):
         if self.product and self.quantity > self.product.quantity:
             raise ValidationError(f'Количество товара в заказе превышает количество на складе. Доступно: {self.product.quantity}')
+
+        if self.product and self.price != self.product.price:
+            raise ValidationError(f'Цена товара в заказе отличается от цены товара. Цена на товара: {self.product.price}')
 
     #Вычисление итоговой цены по количеству товара
     @admin.display(description='Итого')
     def get_cost(self):
         return self.price * self.quantity if self.price is not None and self.quantity is not None else 0
 
-        #Вычитание остатка из бд после создание заказа
+    def save(self, *args, **kwargs):
+        #Вычитание количества остатков заказанного товара из бд
         self.product.quantity -= self.quantity
-        self.product.save()
+        self.product.save(update_fields=['quantity'])
+
+        super().save(*args, **kwargs)
 
 
 #Корзина
