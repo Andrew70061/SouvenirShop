@@ -17,7 +17,7 @@ class SupplyAdmin(admin.ModelAdmin):
     inlines = [SupplyItemInline]
     list_display = ['id_supply','supplier', 'responsible', 'act_number']
     search_fields = ['number', 'supplier__name', 'responsible__username', 'act_number']
-    list_filter = ['supplier__name']
+    list_filter = ['supplier__name','responsible']
 
 admin.site.register(Supplier, SupplierAdmin)
 admin.site.register(Supply, SupplyAdmin)
@@ -30,7 +30,7 @@ class ProductImagesAdmin(admin.ModelAdmin):
 admin.site.register(ProductImages, ProductImagesAdmin)
 
 
-#Товары
+#Товар
 class ProductAdminInline(admin.TabularInline):
     model = ProductImages
     extra = 0
@@ -53,11 +53,12 @@ class BrandAdmin(admin.ModelAdmin):
 admin.site.register(Brand, BrandAdmin)
 
 
-#Товары
+#Список товаров
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'price', 'quantity', 'publish', 'created', 'updated']
-    list_filter = ['publish', 'created']
-    list_editable = ['quantity', 'publish']
+    list_display = ['sku','title', 'category','price', 'quantity', 'publish', 'created', 'updated']
+    list_filter = ('category', 'brand', 'publish')
+    list_editable = ['price','quantity', 'publish']
+    search_fields = ('title', 'category__title', 'sku', 'brand__name')
     prepopulated_fields = {'slug': ('title',)}
     inlines = [ProductAdminInline]
 
@@ -90,7 +91,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email', 'address',
                     'postal_code', 'city', 'paid', 'created', 'updated', 'status']
     list_filter = ['paid', 'created', 'updated', StatusFilter]
-    search_fields = ['id', 'first_name', 'last_name', 'email', 'address', 'postal_code', 'city']
+    search_fields = ['id', 'first_name', 'last_name', 'email', 'address', 'postal_code', 'city','status']
     inlines = [OrderItemInline]
 
 
@@ -98,9 +99,30 @@ admin.site.register(Order, OrderAdmin)
 
 
 #Пользователи
+class IsStaffFilter(admin.SimpleListFilter):
+    title = 'Статус'
+    parameter_name = 'is_staff'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('Сотрудник', 'Сотрудник'),
+            ('Покупатель', 'Покупатель'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Сотрудник':
+            return queryset.filter(is_staff=True)
+        if self.value() == 'Покупатель':
+            return queryset.filter(is_staff=False)
+
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    search_fields = ('username', 'email')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'get_is_staff_display','date_joined','last_login')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    list_filter = ('is_superuser','is_active', IsStaffFilter)
+
+    def get_is_staff_display(self, obj):
+        return 'Сотрудник' if obj.is_staff else 'Покупатель'
+    get_is_staff_display.short_description = 'Статус'
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
