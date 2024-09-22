@@ -369,6 +369,14 @@ def cancel_order(request, order_id):
     elif order.status != order.STATUS_CANCELLED:
         order.status = order.STATUS_CANCELLED
         order.save()
+
+        # Возвращаем остаток товаров на склад
+        order_items = OrderItem.objects.filter(order=order)
+        for item in order_items:
+            product = item.product
+            product.quantity += item.quantity
+            product.save()
+
         messages.success(request, 'Заказ успешно отменен.')
 
     return redirect('shop:orders')
