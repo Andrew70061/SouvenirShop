@@ -379,6 +379,18 @@ def cancel_order(request, order_id):
 
         messages.success(request, 'Заказ успешно отменен.')
 
+        # Отправка уведомления в Telegram
+        message = (
+            f"Покупатель отменил заказ №{order.id}\n"
+            f"Товары в заказе:\n"
+        )
+        for item in order_items:
+            message += f"- {item.product.title} (x{item.quantity}): {item.price} руб.\n"
+
+        message += "Остаток возвращен на склад, проверьте."
+
+        asyncio.run(send_telegram_message(message))
+
     return redirect('shop:orders')
 
 
