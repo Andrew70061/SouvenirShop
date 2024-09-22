@@ -1,13 +1,21 @@
 {% extends "admin/index.html" %}
 
 {% block content %}
-    <div class="module">
-        <h1>Статистика по заказам</h1>
-        <ul>
-            <li>Новые заказы: {{ new_orders_count }}</li>
-            <li>Отмененные заказы: {{ cancelled_orders_count }}</li>
-            <li>Доставленные заказы: {{ completed_orders_count }}</li>
-        </ul>
+    <div class="module" style="display: flex; justify-content: space-between;">
+        <div style="flex: 1;">
+            <h1 style="font-weight: bold;">Статистика заказов на сегодня</h1>
+            <ul>
+                <li>Новые заказы: {{ new_orders_count }}</li>
+                <li>Отмененные заказы: {{ cancelled_orders_count }}</li>
+                <li>Доставленные заказы: {{ completed_orders_count }}</li>
+            </ul>
+        </div>
+        <div style="flex: 1; margin-left: 150px; text-align: center;">
+            <h1 style="font-weight: bold;">Заказы за последние 30 дней</h1>
+            <div style="margin-top: -25px;">
+                <img src="data:image/png;base64,{{ orders_chart }}" alt="Заказы за последние 30 дней" style="width: 1000px; height: 356px;">
+            </div>
+        </div>
     </div>
     {{ block.super }}
 {% endblock %}
