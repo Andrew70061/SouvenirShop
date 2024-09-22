@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name" style="color: white; background-color: #c21631; padding: 10px;">
+    <img src="{% static 'images/Logo_White_MUIV.png' %}" alt="Logo" style="height: 50px; vertical-align: middle;">
+    <a href="{% url 'admin:index' %}" style="color: white; vertical-align: middle;">{{ site_header|default:_('Django administration') }}</a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    #header {
+        background-color: #c21631;
+    }
+    .module h2, .module caption, .inline-group h2 {
+        background-color: #c21631;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background-color: #c21631;
+        color: white;
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+        background-color: #a81229;
+    }
+    .object-tools a:link, .object-tools a:visited {
+        background-color: #c21631;
+        color: white;
+    }
+    .object-tools a:hover {
+        background-color: #a81229;
+    }
+    #changelist-filter {
+        background-color: #c21631;
+        color: white;
+    }
+    #changelist-filter a {
+        color: white;
+    }
+    #changelist-filter a:hover {
+        color: #f5f5f5;
+    }
+    .breadcrumbs {
+        background-color: #8c1d2f !important;
+        color: white !important;
+    }
+    .breadcrumbs a {
+        color: white !important;
+    }
+    .breadcrumbs a:hover {
+        color: #f5f5f5 !important;
+    }
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

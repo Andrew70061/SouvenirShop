@@ -186,4 +186,4 @@ admin.site.register(Report, ReportAdmin)
 
 
 #Название в панели навигации
-admin.site.site_header = 'Администратирование MUIV Souvenir Shop'
+admin.site.site_header = 'Управление Souvenir Muiv Shop'

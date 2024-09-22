@@ -28,7 +28,7 @@ def order_stats(request):
     cancelled_orders_count = Order.objects.filter(status=Order.STATUS_CANCELLED, created__date=today).count()
     completed_orders_count = Order.objects.filter(status=Order.STATUS_COMPLETED, created__date=today).count()
 
-    # Гистограмма заказов за месяц
+    #Гистограмма заказов за месяц
     end_date = timezone.now()
     start_date = end_date - timedelta(days=30)
     orders_per_day = Order.objects.filter(created__range=(start_date, end_date)).values('created__date').annotate(count=Count('id'))
@@ -37,11 +37,9 @@ def order_stats(request):
     counts = [order['count'] for order in orders_per_day]
 
     plt.figure(figsize=(10, 5))
-    plt.bar(dates, counts, color='blue')
+    plt.bar(dates, counts, color='#8c1d2f')
     plt.xlabel('Дата')
     plt.ylabel('Количество заказов')
-
-    # Форматирование меток оси X
     plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%d'))
     plt.gca().xaxis.set_major_locator(plt.matplotlib.dates.DayLocator())
     plt.xticks(rotation=0)
