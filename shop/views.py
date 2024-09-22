@@ -365,12 +365,12 @@ def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.status == order.STATUS_DELIVERS:
-        messages.error(request, 'Ваш заказ уже у курьера, свяжитесь с ним для отмены доставки.')
+        messages.error(request, 'Ваш заказ уже у курьера, свяжитесь с ними для отмены:8-916-839-00-01 .')
     elif order.status != order.STATUS_CANCELLED:
         order.status = order.STATUS_CANCELLED
         order.save()
 
-        # Возвращаем остаток товаров на склад
+        #Возвращаем остаток товаров при отмене
         order_items = OrderItem.objects.filter(order=order)
         for item in order_items:
             product = item.product
@@ -379,7 +379,7 @@ def cancel_order(request, order_id):
 
         messages.success(request, 'Заказ успешно отменен.')
 
-        # Отправка уведомления в Telegram
+        #Отправка уведомления в Telegram
         message = (
             f"Покупатель отменил заказ №{order.id}\n"
             f"Товары в заказе:\n"

@@ -1,0 +1,13 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    <div class="module">
+        <h1>Статистика по заказам</h1>
+        <ul>
+            <li>Новые заказы: {{ new_orders_count }}</li>
+            <li>Отмененные заказы: {{ cancelled_orders_count }}</li>
+            <li>Доставленные заказы: {{ completed_orders_count }}</li>
+        </ul>
+    </div>
+    {{ block.super }}
+{% endblock %}
