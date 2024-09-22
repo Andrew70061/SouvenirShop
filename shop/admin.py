@@ -146,9 +146,9 @@ class ReportAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename="orders.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['ID', 'Имя', 'Фамилия', 'Телефон', 'Email', 'Адрес', 'Индекс', 'Город', 'Комментарий', 'Дата создания', 'Оплачено'])
+        writer.writerow(['ID', 'Имя', 'Фамилия', 'Телефон', 'Email', 'Адрес', 'Индекс', 'Город', 'Комментарий', 'Дата создания', 'Оплачено', 'Статус'])
 
-        orders = Order.objects.all().values_list('id', 'first_name', 'last_name', 'phone_number', 'email', 'address', 'postal_code', 'city', 'comment', 'created', 'paid')
+        orders = Order.objects.all().values_list('id', 'first_name', 'last_name', 'phone_number', 'email', 'address', 'postal_code', 'city', 'comment', 'created', 'paid', 'status')
         for order in orders:
             writer.writerow(order)
 
@@ -172,6 +172,7 @@ class ReportAdmin(admin.ModelAdmin):
             'Комментарий': [order.comment for order in orders],
             'Дата создания': [order.created.astimezone(timezone.utc).replace(tzinfo=None) for order in orders],
             'Оплачено': [order.paid for order in orders],
+            'Статус': [order.status for order in orders],
         }
 
         df = pd.DataFrame(data)
