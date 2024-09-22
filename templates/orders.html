@@ -3,6 +3,18 @@
 {% block content %}
 <div class="container py-5">
     <h1 class="mb-4">Мои заказы</h1>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% if orders %}
     <div class="list-group">
         {% for order in orders %}
@@ -12,7 +24,7 @@
                 <small>{{ order.created }}</small>
             </div>
             <p class="mb-1">Статус: {{ order.status }}</p>
-            <p class="mb-1">Оплачено: {% if order.is_paid %}Да{% else %}Нет{% endif %}</p>
+            <p class="mb-1">Оплачено: {% if order.paid %}Да{% else %}Нет{% endif %}</p>
             <p class="mb-1">Способ получения: {{ order.delivery_method }}</p>
             <ul class="list-unstyled">
                 {% for item in order.orderitem_set.all %}
@@ -29,6 +41,15 @@
                 </li>
                 {% endfor %}
             </ul>
+            <!-- Кнопка отмены заказа -->
+            {% if order.status != order.STATUS_CANCELLED %}
+            <div class="d-flex justify-content-end">
+                <form action="{% url 'shop:cancel_order' order.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom btn-sm">Отменить заказ</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

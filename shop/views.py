@@ -344,7 +344,7 @@ def profile(request):
     return render(request, 'profile.html')
 
 
-#Заказы пользователя
+#Заказы покупателя
 @login_required
 def orders(request):
     user_orders = Order.objects.filter(user=request.user)
@@ -357,6 +357,21 @@ def orders(request):
         else:
             order.delivery_method = 'Не указан'
     return render(request, 'orders.html', {'orders': user_orders})
+
+
+#Отмена заказов покупателем
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == order.STATUS_DELIVERS:
+        messages.error(request, 'Ваш заказ уже у курьера, свяжитесь с ним для отмены доставки.')
+    elif order.status != order.STATUS_CANCELLED:
+        order.status = order.STATUS_CANCELLED
+        order.save()
+        messages.success(request, 'Заказ успешно отменен.')
+
+    return redirect('shop:orders')
 
 
 #Редактирование профиля пользователя
@@ -650,3 +665,6 @@ def export_orders_excel(request):
 
     return response
 
+
+
+#===========================================Веб-приложение_SouvenirShopMUIV============================================#
