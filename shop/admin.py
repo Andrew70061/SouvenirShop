@@ -1,6 +1,6 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
-from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand, SupplyItem,Supply, Report
+from shop.models import Product, ProductCategory, ProductImages, Supplier, Order, OrderItem, Brand, SupplyItem,Supply, Report, Feedback
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponse
@@ -183,6 +183,15 @@ class ReportAdmin(admin.ModelAdmin):
 
 admin.site.register(Report, ReportAdmin)
 
+
+#Обращение покупателей
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('name', 'email', 'message')
+    readonly_fields = ('created_at',)
+
+admin.site.register(Feedback, FeedbackAdmin)
 
 
 #Название в панели навигации

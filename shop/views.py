@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.db.models import Q, Min, Max
 import asyncio
 from .telegram_bot import send_telegram_message
+from .forms import FeedbackForm
 
 
 #===========================================Сайт_интернет-магазина_SouvenirShop========================================#
@@ -641,6 +642,32 @@ def payment_success(request, payment_id):
         order.save()
         return render(request, 'payment_success.html')
     return render(request, 'payment_failure.html')
+
+#Форма обратной связи
+@csrf_exempt
+def feedback_view(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save()
+
+            #Отправка уведомления в Telegram
+            message = (
+                f"Новое обращение покупателя №{feedback.id} от {feedback.created_at}\n"
+                f"Имя: {feedback.name}\n"
+                f"Email: {feedback.email}\n"
+                f"Сообщение: {feedback.message}\n"
+                f"Пожалуйста, проверьте сообщение и ответьте покупателю."
+            )
+            asyncio.run(send_telegram_message(message))
+
+            return redirect(reverse('shop:feedback_success'))
+    else:
+        form = FeedbackForm()
+    return render(request, 'feedback.html', {'form': form})
+
+def feedback_success_view(request):
+    return render(request, 'feedback_success.html')
 
 
 #===========================================Сайт_интернет-магазина_SouvenirShop========================================#

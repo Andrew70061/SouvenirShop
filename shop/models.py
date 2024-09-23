@@ -320,3 +320,24 @@ class Report(models.Model):
         if not self.pk:  # Проверяем, что это новый объект
             self.name = "Отчет по заказам"
         super().save(*args, **kwargs)
+
+
+#Форма обратной связи с покупателями
+class Feedback(models.Model):
+    STATUS_CHOICES = (
+        ('new', 'Новое'),
+        ('closed', 'Закрытое'),
+    )
+
+    name = models.CharField(max_length=100, verbose_name="Имя")
+    email = models.EmailField(verbose_name="Email")
+    message = models.TextField(verbose_name="Сообщение")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new', verbose_name="Статус")
+
+    class Meta:
+        verbose_name = "Обращение покупателей"
+        verbose_name_plural = "Обращение покупателй"
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"

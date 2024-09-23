@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (index, search, category_detail, about, contact, register,
-profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, cancel_order, product_detail,create_payment, payment_success,export_orders_csv,export_orders_excel )
+profile, orders, edit_profile, add_to_cart, add_delivery_to_cart, view_cart, checkout, remove_from_cart, update_quantity, buy_one_click, cancel_order, product_detail,create_payment, payment_success,export_orders_csv,export_orders_excel,feedback_view, feedback_success_view)
 from django.contrib.auth import views as auth_views
 
 app_name = 'shop'
@@ -30,4 +30,6 @@ urlpatterns = [
     path('payment/<int:payment_id>/success/', payment_success, name='payment_success'),
     path('export/orders/csv/', export_orders_csv, name='export_orders_csv'),
     path('export/orders/excel/', export_orders_excel, name='export_orders_excel'),
+    path('feedback/', feedback_view, name='feedback'),
+    path('feedback/success/', feedback_success_view, name='feedback_success'),
 ]
