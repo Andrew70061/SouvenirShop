@@ -1,7 +1,7 @@
 @startuml
 
 ' Определение классов (таблиц)
-class Product {
+class Товары {
     +id: int
     +title: varchar(255)
     +slug: varchar(150)
@@ -30,7 +30,7 @@ class Product {
     +image: varchar(100)
 }
 
-class ProductImages {
+class Фотографии_товаров {
     +id: int
     +product: int
     +image: varchar(100)
@@ -38,14 +38,14 @@ class ProductImages {
     +order: int
 }
 
-class ProductCategory {
+class Списки_категорий {
     +id: int
     +title: varchar(50)
     +slug: varchar(150)
     +parent: int
 }
 
-class Supplier {
+class Списки_поставщиков {
     +id: int
     +name: varchar(255)
     +site: varchar(200)
@@ -58,7 +58,7 @@ class Supplier {
     +markup: decimal(10,2)
 }
 
-class Supply {
+class Поставки {
     +id: int
     +id_supply: int
     +supplier: int
@@ -67,20 +67,20 @@ class Supply {
     +comment: text
 }
 
-class SupplyItem {
+class Список_товаров_в_поставке {
     +id: int
     +supply: int
     +product: int
     +quantity: int
 }
 
-class Brand {
+class Списки_брендов {
     +id: int
     +name: varchar(255)
     +description: text
 }
 
-class Order {
+class Заказы {
     +id: int
     +user: int
     +first_name: varchar(50)
@@ -99,7 +99,7 @@ class Order {
     +status: varchar(32)
 }
 
-class OrderItem {
+class Товары_из_заказа {
     +id: int
     +order: int
     +product: int
@@ -107,20 +107,20 @@ class OrderItem {
     +price: decimal(20,2)
 }
 
-class Cart {
+class Корзина {
     +id: int
     +user: int
     +created_at: datetime
 }
 
-class CartItem {
+class Товары_из_корзины {
     +id: int
     +cart: int
     +product: int
     +quantity: int
 }
 
-class Payment {
+class Платежи {
     +id: int
     +amount: decimal(10,2)
     +currency: varchar(3)
@@ -128,13 +128,7 @@ class Payment {
     +updated_at: datetime
 }
 
-class Report {
-    +id: int
-    +name: varchar(255)
-    +created_at: datetime
-}
-
-class Feedback {
+class Обращение_покупателей {
     +id: int
     +name: varchar(100)
     +email: varchar(254)
@@ -143,21 +137,61 @@ class Feedback {
     +status: varchar(10)
 }
 
+class Отчеты {
+    +id: int
+    +name: varchar(255)
+    +created_at: datetime
+}
+
 ' Определение связей между таблицами
-Product "1" -- "*" ProductImages : has >
-Product "1" -- "*" SupplyItem : has >
-Product "1" -- "*" OrderItem : has >
-Product "1" -- "*" CartItem : has >
-Product "1" -- "1" ProductCategory : belongs to >
-Product "1" -- "1" Supplier : supplied by >
-Product "1" -- "1" Brand : has >
-Order "1" -- "*" OrderItem : contains >
-Cart "1" -- "*" CartItem : contains >
-Supply "1" -- "*" SupplyItem : contains >
-Supply "1" -- "1" Supplier : supplied by >
-Supply "1" -- "1" User : responsible for >
-Order "1" -- "1" User : placed by >
-Cart "1" -- "1" User : belongs to >
-Feedback "1" -- "1" User : belongs to >
+Товары "1" -- "*" Фотографии_товаров : has >
+Товары "1" -- "*" Список_товаров_в_поставке : has >
+Товары "1" -- "*" Товары_из_заказа : has >
+Товары "1" -- "*" Товары_из_корзины : has >
+Товары "1" -- "1" Списки_категорий : belongs to >
+Товары "1" -- "1" Списки_поставщиков : supplied by >
+Товары "1" -- "1" Списки_брендов : has >
+Заказы "1" -- "*" Товары_из_заказа : contains >
+Заказы "1" -- "*" Платежи : has >
+Корзина "1" -- "*" Товары_из_корзины : contains >
+Поставки "1" -- "*" Список_товаров_в_поставке : contains >
+Поставки "1" -- "1" Списки_поставщиков : supplied by >
+Поставки "1" -- "1" User : responsible for >
+Заказы "1" -- "1" User : placed by >
+Корзина "1" -- "1" User : belongs to >
+Обращение_покупателей "1" -- "1" User : belongs to >
+Отчеты "1" -- "*" Заказы : contains >
+
+' Убираем зеленые значки у названий таблиц
+hide Товары circle
+hide Фотографии_товаров circle
+hide Списки_категорий circle
+hide Списки_поставщиков circle
+hide Поставки circle
+hide Список_товаров_в_поставке circle
+hide Списки_брендов circle
+hide Заказы circle
+hide Товары_из_заказа circle
+hide Корзина circle
+hide Товары_из_корзины circle
+hide Платежи circle
+hide Обращение_покупателей circle
+hide Отчеты circle
+
+' Убираем значки у списков в таблицах
+hide Товары methods
+hide Фотографии_товаров methods
+hide Списки_категорий methods
+hide Списки_поставщиков methods
+hide Поставки methods
+hide Список_товаров_в_поставке methods
+hide Списки_брендов methods
+hide Заказы methods
+hide Товары_из_заказа methods
+hide Корзина methods
+hide Товары_из_корзины methods
+hide Платежи methods
+hide Обращение_покупателей methods
+hide Отчеты methods
 
 @enduml
