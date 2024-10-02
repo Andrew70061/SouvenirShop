@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'mptt',
     'shop.apps.ShopConfig',
     'payments',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,163 @@
+@startuml
+
+' Определение классов (таблиц)
+class Product {
+    +id: int
+    +title: varchar(255)
+    +slug: varchar(150)
+    +description: text
+    +category: int
+    +sku: varchar(255)
+    +barcode: varchar(255)
+    +manufacturer_countries: varchar(255)
+    +brand: int
+    +vendor: varchar(255)
+    +vendor_code: varchar(255)
+    +length: decimal(10,2)
+    +width: decimal(10,2)
+    +height: decimal(10,2)
+    +weight: decimal(10,2)
+    +price: decimal(20,2)
+    +quantity: int
+    +supplier: int
+    +supplier_sku: int
+    +supplier_url: varchar(200)
+    +supplier_price: int
+    +publish: boolean
+    +author: int
+    +created: datetime
+    +updated: datetime
+    +image: varchar(100)
+}
+
+class ProductImages {
+    +id: int
+    +product: int
+    +image: varchar(100)
+    +alt: varchar(255)
+    +order: int
+}
+
+class ProductCategory {
+    +id: int
+    +title: varchar(50)
+    +slug: varchar(150)
+    +parent: int
+}
+
+class Supplier {
+    +id: int
+    +name: varchar(255)
+    +site: varchar(200)
+    +first_name: varchar(50)
+    +last_name: varchar(50)
+    +email: varchar(254)
+    +phone: varchar(50)
+    +address: varchar(250)
+    +comment: text
+    +markup: decimal(10,2)
+}
+
+class Supply {
+    +id: int
+    +id_supply: int
+    +supplier: int
+    +responsible: int
+    +act_number: varchar(5)
+    +comment: text
+}
+
+class SupplyItem {
+    +id: int
+    +supply: int
+    +product: int
+    +quantity: int
+}
+
+class Brand {
+    +id: int
+    +name: varchar(255)
+    +description: text
+}
+
+class Order {
+    +id: int
+    +user: int
+    +first_name: varchar(50)
+    +last_name: varchar(50)
+    +phone_number: varchar(12)
+    +email: varchar(254)
+    +address: varchar(250)
+    +postal_code: varchar(20)
+    +city: varchar(100)
+    +comment: text
+    +created: datetime
+    +updated: datetime
+    +paid: boolean
+    +self_pickup: boolean
+    +courier_delivery: boolean
+    +status: varchar(32)
+}
+
+class OrderItem {
+    +id: int
+    +order: int
+    +product: int
+    +quantity: int
+    +price: decimal(20,2)
+}
+
+class Cart {
+    +id: int
+    +user: int
+    +created_at: datetime
+}
+
+class CartItem {
+    +id: int
+    +cart: int
+    +product: int
+    +quantity: int
+}
+
+class Payment {
+    +id: int
+    +amount: decimal(10,2)
+    +currency: varchar(3)
+    +created_at: datetime
+    +updated_at: datetime
+}
+
+class Report {
+    +id: int
+    +name: varchar(255)
+    +created_at: datetime
+}
+
+class Feedback {
+    +id: int
+    +name: varchar(100)
+    +email: varchar(254)
+    +message: text
+    +created_at: datetime
+    +status: varchar(10)
+}
+
+' Определение связей между таблицами
+Product "1" -- "*" ProductImages : has >
+Product "1" -- "*" SupplyItem : has >
+Product "1" -- "*" OrderItem : has >
+Product "1" -- "*" CartItem : has >
+Product "1" -- "1" ProductCategory : belongs to >
+Product "1" -- "1" Supplier : supplied by >
+Product "1" -- "1" Brand : has >
+Order "1" -- "*" OrderItem : contains >
+Cart "1" -- "*" CartItem : contains >
+Supply "1" -- "*" SupplyItem : contains >
+Supply "1" -- "1" Supplier : supplied by >
+Supply "1" -- "1" User : responsible for >
+Order "1" -- "1" User : placed by >
+Cart "1" -- "1" User : belongs to >
+Feedback "1" -- "1" User : belongs to >
+
+@enduml
