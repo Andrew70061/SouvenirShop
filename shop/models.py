@@ -317,7 +317,7 @@ class Report(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # Проверяем, что это новый объект
+        if not self.pk:
             self.name = "Отчет по заказам"
         super().save(*args, **kwargs)
 
