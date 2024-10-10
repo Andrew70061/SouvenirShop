@@ -77,10 +77,11 @@
                 <input type="checkbox" id="courier_delivery" name="courier_delivery" value="True" {% if delivery_method == 'courier_delivery' %}checked{% endif %}>
                 <label for="courier_delivery">Доставка курьером</label>
             </div>
+            <div id="delivery-error" class="error-message" style="display: none;">Пожалуйста, выберите способ получения товара.</div>
         </form>
 
         <div class="text-right">
-            <a href="{% url 'shop:checkout' %}" class="btn btn-custom">Оформить заказ</a>
+            <a href="{% url 'shop:checkout' %}" class="btn btn-custom" onclick="return validateDeliveryMethod()">Оформить заказ</a>
         </div>
     {% else %}
         <p>Ваша корзина пуста.</p>
@@ -113,6 +114,11 @@
             background-color: #c21631;
             color: white;
         }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
     </style>
 
     <script>
@@ -139,5 +145,19 @@
                 });
             }
         });
+
+        function validateDeliveryMethod() {
+            const selfPickup = document.getElementById('self_pickup');
+            const courierDelivery = document.getElementById('courier_delivery');
+            const deliveryError = document.getElementById('delivery-error');
+
+            if (!selfPickup.checked && !courierDelivery.checked) {
+                deliveryError.style.display = 'block';
+                return false;
+            } else {
+                deliveryError.style.display = 'none';
+                return true;
+            }
+        }
     </script>
 {% endblock %}
