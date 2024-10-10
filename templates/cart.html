@@ -81,7 +81,7 @@
         </form>
 
         <div class="text-right">
-            <a href="{% url 'shop:checkout' %}" class="btn btn-custom" onclick="return validateDeliveryMethod()">Оформить заказ</a>
+            <a href="{% url 'shop:checkout' %}" class="btn btn-custom" id="checkout-button" onclick="return validateDeliveryMethod()">Оформить заказ</a>
         </div>
     {% else %}
         <p>Ваша корзина пуста.</p>
@@ -144,6 +144,24 @@
                     });
                 });
             }
+
+            const checkoutButton = document.getElementById('checkout-button');
+            const products = document.querySelectorAll('tr[data-product-id]');
+            let allProductsInStock = true;
+
+            products.forEach(product => {
+                const quantityInCart = parseInt(product.querySelector('.quantity-input').value);
+                const quantityAvailable = parseInt(product.querySelector('.quantity-input').max);
+
+                if (quantityInCart > quantityAvailable) {
+                    allProductsInStock = false;
+                }
+            });
+
+            if (!allProductsInStock) {
+                checkoutButton.classList.add('disabled');
+                checkoutButton.setAttribute('disabled', 'disabled');
+            }
         });
 
         function validateDeliveryMethod() {
@@ -151,7 +169,7 @@
             const courierDelivery = document.getElementById('courier_delivery');
             const deliveryError = document.getElementById('delivery-error');
 
-            if (!selfPickup.checked && !courierDelivery.checked) {
+            if (!selfPickup.checked && !courier_delivery.checked) {
                 deliveryError.style.display = 'block';
                 return false;
             } else {
